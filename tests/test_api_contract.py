@@ -24,7 +24,7 @@ READ_ENDPOINTS = [
 ]
 
 # Routes that are deliberately not JSON-envelope endpoints, or are covered elsewhere.
-NOT_IN_SWEEP = {"schema/", "docs/", "redoc/", "enquiries/"}
+NOT_IN_SWEEP = {"schema/", "docs/", "redoc/", "enquiries/", "analytics/collect/"}
 
 
 @pytest.mark.parametrize("lang", ["en", "ar"])

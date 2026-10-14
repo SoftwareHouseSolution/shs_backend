@@ -1,0 +1,168 @@
+"""Read side: what the admin and the dashboard show. Paths are shown as page names taken
+from the CMS ("/ar/our-team" → "Our Team"), so the flow reads like the menu, not like URLs."""
+
+import re
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+
+from django.db.models import Avg, Count, Q, Sum
+from django.db.models.functions import TruncDate
+from django.utils import timezone
+from django.utils.translation import gettext as _
+
+from .models import PageView, VisitSession
+
+_LOCALE = re.compile(r"^/(en|ar)(?=/|$)")
+
+
+def normalise_path(path: str) -> str:
+    """Drop the language prefix and the trailing slash: /ar/customers/ → /customers."""
+    stripped = _LOCALE.sub("", path or "") or "/"
+    return stripped.rstrip("/") or "/"
+
+
+def page_titles() -> dict[str, str]:
+    """Normalised path → page name, from the CMS. One query; call once per admin request."""
+    from apps.pages.models import Page
+
+    titles = {"/": _("Home")}
+    for slug, title in Page.objects.values_list("slug", "title_en"):
+        titles[f"/{slug}"] = title
+    return titles
+
+
+def label_for(path: str, titles: dict[str, str]) -> str:
+    return titles.get(normalise_path(path), normalise_path(path))
+
+
+def format_duration(ms: int | float | None) -> str:
+    seconds = int(round((ms or 0) / 1000))
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes, seconds = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{minutes}m {seconds:02d}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes:02d}m"
+
+
+@dataclass(frozen=True)
+class Step:
+    label: str
+    path: str
+    duration: str
+    duration_ms: int
+
+
+def flow(session: VisitSession, titles: dict[str, str]) -> list[Step]:
+    return [
+        Step(label_for(v.path, titles), v.path, format_duration(v.duration_ms), v.duration_ms)
+        for v in sorted(session.views.all(), key=lambda v: (v.sequence, v.entered_at))
+    ]
+
+
+def flow_text(session: VisitSession, titles: dict[str, str]) -> str:
+    return " → ".join(f"{s.label} {s.duration}" for s in flow(session, titles))
+
+
+def sessions_with_totals():
+    return VisitSession.objects.annotate(
+        page_count=Count("views"),
+        total_ms=Sum("views__duration_ms"),
+    )
+
+
+@dataclass(frozen=True)
+class Summary:
+    visitors: int
+    visits: int
+    page_views: int
+    avg_visit: str
+    pages_per_visit: str
+
+
+def summary(since: datetime) -> Summary:
+    sessions = sessions_with_totals().filter(started_at__gte=since)
+    agg = sessions.aggregate(
+        visitors=Count("visitor_id", distinct=True),
+        visits=Count("id"),
+        avg_ms=Avg("total_ms"),
+        avg_pages=Avg("page_count"),
+    )
+    views = PageView.objects.filter(session__started_at__gte=since).count()
+    return Summary(
+        visitors=agg["visitors"] or 0,
+        visits=agg["visits"] or 0,
+        page_views=views,
+        avg_visit=format_duration(agg["avg_ms"]),
+        pages_per_visit=f"{agg['avg_pages'] or 0:.1f}",
+    )
+
+
+@dataclass(frozen=True)
+class PageStat:
+    label: str
+    path: str
+    views: int
+    avg_time: str
+
+
+def top_pages(since: datetime, limit: int = 8) -> list[PageStat]:
+    """Most-viewed pages, both languages counted together."""
+    titles = page_titles()
+    totals: dict[str, list[int]] = {}
+    for path, views, avg in (
+        PageView.objects.filter(entered_at__gte=since)
+        .values("path")
+        .annotate(views=Count("id"), avg=Avg("duration_ms"))
+        .values_list("path", "views", "avg")
+    ):
+        key = normalise_path(path)
+        count, weighted = totals.get(key, [0, 0])
+        totals[key] = [count + views, weighted + (avg or 0) * views]
+    ranked = sorted(totals.items(), key=lambda kv: kv[1][0], reverse=True)[:limit]
+    return [
+        PageStat(titles.get(path, path), path, count, format_duration(weighted / count if count else 0))
+        for path, (count, weighted) in ranked
+    ]
+
+
+def daily_visits(days: int = 14) -> tuple[list[str], list[int]]:
+    today = timezone.localdate()
+    start = today - timedelta(days=days - 1)
+    counts = dict(
+        VisitSession.objects.filter(started_at__date__gte=start)
+        .annotate(day=TruncDate("started_at"))
+        .values("day")
+        .annotate(n=Count("id"))
+        .values_list("day", "n")
+    )
+    labels, values = [], []
+    for i in range(days):
+        day: date = start + timedelta(days=i)
+        labels.append(day.strftime("%d %b"))
+        values.append(counts.get(day, 0))
+    return labels, values
+
+
+def recent_visits(limit: int = 8):
+    return sessions_with_totals().prefetch_related("views").order_by("-started_at")[:limit]
+
+
+def devices(since: datetime) -> dict[str, int]:
+    return dict(
+        VisitSession.objects.filter(started_at__gte=since)
+        .values("device")
+        .annotate(n=Count("id"))
+        .values_list("device", "n")
+    )
+
+
+def languages(since: datetime) -> dict[str, int]:
+    return dict(
+        VisitSession.objects.filter(started_at__gte=since)
+        .exclude(Q(language=""))
+        .values("language")
+        .annotate(n=Count("id"))
+        .values_list("language", "n")
+    )

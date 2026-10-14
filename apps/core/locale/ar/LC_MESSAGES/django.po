@@ -13,6 +13,9 @@ msgstr "تم جلب المحتوى بنجاح."
 msgid "Thank you — your message has been received. We will be in touch soon."
 msgstr "شكرًا لك — وصلتنا رسالتك، وسنتواصل معك قريبًا."
 
+msgid "Event recorded."
+msgstr "تم تسجيل الحدث."
+
 msgid "Service is healthy."
 msgstr "الخدمة تعمل بشكل سليم."
 

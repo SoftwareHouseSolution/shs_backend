@@ -18,7 +18,7 @@ ENQUIRY_NOTIFIER = "apps.enquiries.notifiers.NullEnquiryNotifier"
 # Generous by default so ordinary tests never trip the limiter; throttle tests override it.
 REST_FRAMEWORK = {
     **REST_FRAMEWORK,
-    "DEFAULT_THROTTLE_RATES": {"anon": "10000/min", "enquiries": "1000/min"},
+    "DEFAULT_THROTTLE_RATES": {"anon": "10000/min", "enquiries": "1000/min", "analytics": "10000/min"},
 }
 LOGGING = {
     "version": 1,

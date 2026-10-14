@@ -197,9 +197,51 @@ def dashboard_callback(request, context):
             ],
             "untranslated_pages": untranslated,
             "content_blocks": PageBlock.objects.count(),
+            **_visitor_context(),
         }
     )
     return context
+
+
+def _visitor_context() -> dict:
+    """The dashboard's Visitors section: last 7 days, a 14-day chart, top pages and the
+    most recent visits with the path each one took."""
+    import json
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from apps.analytics import reports
+
+    since = timezone.now() - timedelta(days=7)
+    stats = reports.summary(since)
+    labels, values = reports.daily_visits(14)
+    titles = reports.page_titles()
+    return {
+        "visitor_kpis": [
+            {"title": _("Visitors (7 days)"), "value": stats.visitors},
+            {"title": _("Visits"), "value": stats.visits},
+            {"title": _("Page views"), "value": stats.page_views},
+            {"title": _("Avg. time on site"), "value": stats.avg_visit},
+            {"title": _("Pages per visit"), "value": stats.pages_per_visit},
+        ],
+        "visits_chart": json.dumps(
+            {
+                "labels": labels,
+                "datasets": [{"label": str(_("Visits")), "data": values, "backgroundColor": "var(--color-primary-500)"}],
+            }
+        ),
+        "top_pages": reports.top_pages(since),
+        "recent_visits": [
+            {
+                "visit": v,
+                "steps": reports.flow(v, titles),
+                "total": reports.format_duration(v.total_ms),
+                "url": reverse("admin:analytics_visitsession_change", args=[v.pk]),
+            }
+            for v in reports.recent_visits(8)
+        ],
+    }
 
 
 __all__ = [

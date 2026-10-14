@@ -18,6 +18,7 @@ class ResponseCode(StrEnum):
     CONTENT_RETRIEVED = "CONTENT_RETRIEVED"
     CONTENT_LIST_RETRIEVED = "CONTENT_LIST_RETRIEVED"
     ENQUIRY_CREATED = "ENQUIRY_CREATED"
+    ANALYTICS_EVENT_ACCEPTED = "ANALYTICS_EVENT_ACCEPTED"
     HEALTH_OK = "HEALTH_OK"
 
     # ── Client errors ────────────────────────────────────────────────────────────
@@ -46,6 +47,7 @@ DEFAULT_MESSAGES = {
     ResponseCode.CONTENT_RETRIEVED: _("Content retrieved successfully."),
     ResponseCode.CONTENT_LIST_RETRIEVED: _("Content retrieved successfully."),
     ResponseCode.ENQUIRY_CREATED: _("Thank you — your message has been received. We will be in touch soon."),
+    ResponseCode.ANALYTICS_EVENT_ACCEPTED: _("Event recorded."),
     ResponseCode.HEALTH_OK: _("Service is healthy."),
     ResponseCode.VALIDATION_ERROR: _("The submitted data is invalid."),
     ResponseCode.MALFORMED_REQUEST: _("The request could not be read. Check that the body is valid JSON."),

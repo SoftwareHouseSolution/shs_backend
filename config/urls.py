@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
+from apps.analytics.views import CollectView
 from apps.clients.views import ClientListView, ClientTaxonomyView
 from apps.content.views import PartnerListView, TestimonialListView
 from apps.core.views import ApiNotFoundView, HealthView
@@ -26,6 +27,7 @@ api_v1 = [
     path("testimonials/", TestimonialListView.as_view(), name="testimonial-list"),
     path("partners/", PartnerListView.as_view(), name="partner-list"),
     path("enquiries/", EnquiryCreateView.as_view(), name="enquiry-create"),
+    path("analytics/collect/", CollectView.as_view(), name="analytics-collect"),
     # Documentation
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("docs/", SpectacularSwaggerView.as_view(url_name="api-v1:schema"), name="docs"),

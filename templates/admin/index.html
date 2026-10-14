@@ -30,5 +30,61 @@
         </div>
     {% endif %}
 
+    {# ── Visitors: see apps.analytics ─────────────────────────────────────────── #}
+    <h2 class="font-semibold text-lg text-important mb-4">{% trans "Visitors" %}</h2>
+    <div class="grid gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-5">
+        {% for kpi in visitor_kpis %}
+            {% component "unfold/components/card.html" with size="md" %}
+                <p class="text-subtle text-sm">{{ kpi.title }}</p>
+                <p class="font-semibold text-2xl text-important mt-1">{{ kpi.value }}</p>
+            {% endcomponent %}
+        {% endfor %}
+    </div>
+
+    <div class="grid gap-6 mb-6 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+            {% component "unfold/components/card.html" with title=_("Visits per day (14 days)") title_icon="bar_chart" %}
+                {% component "unfold/components/chart/bar.html" with data=visits_chart height=260 %}{% endcomponent %}
+            {% endcomponent %}
+        </div>
+        {% component "unfold/components/card.html" with title=_("Top pages (7 days)") title_icon="leaderboard" %}
+            {% if top_pages %}
+                <table class="w-full text-sm">
+                    <thead><tr class="text-subtle"><th class="text-start font-normal pb-2">{% trans "Page" %}</th><th class="text-end font-normal pb-2">{% trans "Views" %}</th><th class="text-end font-normal pb-2">{% trans "Avg. time" %}</th></tr></thead>
+                    <tbody>
+                        {% for p in top_pages %}
+                            <tr class="border-t border-base-200 dark:border-base-800"><td class="py-2">{{ p.label }}</td><td class="py-2 text-end">{{ p.views }}</td><td class="py-2 text-end">{{ p.avg_time }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-subtle">{% trans "No visits recorded yet." %}</p>
+            {% endif %}
+        {% endcomponent %}
+    </div>
+
+    <div class="mb-8">
+        {% url "admin:analytics_visitsession_changelist" as all_visits %}
+        {% component "unfold/components/card.html" with title=_("Latest visits") title_icon="timeline" %}
+            {% if recent_visits %}
+                <ul class="flex flex-col">
+                    {% for r in recent_visits %}
+                        <li class="flex flex-col gap-1 py-3 {% if not forloop.first %}border-t border-base-200 dark:border-base-800{% endif %}">
+                            <a href="{{ r.url }}" class="text-sm text-subtle hover:text-primary-600">
+                                {{ r.visit.started_at|date:"d M, H:i" }} · {{ r.visit.get_device_display }} · {{ r.visit.language|upper }} · {{ r.visit.page_count }} {% trans "pages" %} · {{ r.total }}
+                            </a>
+                            <p class="text-sm leading-6">
+                                {% for s in r.steps %}<span class="whitespace-nowrap" title="{{ s.path }}"><b>{{ s.label }}</b> <span class="text-base-500">{{ s.duration }}</span></span>{% if not forloop.last %}<span class="text-base-400"> → </span>{% endif %}{% endfor %}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a class="inline-block mt-3 text-primary-600 font-medium text-sm" href="{{ all_visits }}">{% trans "All visits" %} →</a>
+            {% else %}
+                <p class="text-subtle">{% trans "No visits recorded yet. They appear here as soon as someone browses the site." %}</p>
+            {% endif %}
+        {% endcomponent %}
+    </div>
+
     {% include "unfold/helpers/dashboard_default.html" %}
 {% endblock %}

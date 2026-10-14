@@ -131,6 +131,8 @@ are required. Full annotated list: `.env.example`.
 | `MAX_IMAGE_UPLOAD_MB` / `MAX_VIDEO_UPLOAD_MB` | `8` / `60` | Upload limits |
 | `API_THROTTLE_ANON` | `600/min` | Global per-IP rate limit |
 | `API_THROTTLE_ENQUIRIES` | `5/hour` | Per-IP contact-form submissions |
+| `API_THROTTLE_ANALYTICS` | `120/min` | Per-IP page-view reports |
+| `ANALYTICS_RETENTION_DAYS` | `180` | Visits older than this are removed by `prune_analytics` |
 | `NUM_PROXIES` | `0` | Reverse proxies in front (for client IPs in rate limiting) |
 | `ENQUIRY_NOTIFIER` | `…EmailEnquiryNotifier` | Or `…NullEnquiryNotifier` to disable e-mail |
 | `ENQUIRY_NOTIFICATION_EMAIL` | empty | Fallback recipient (admin setting wins) |
@@ -174,7 +176,8 @@ backend/
 │   ├── content/              # shared: comparison tables, testimonials, partners
 │   ├── clients/              # clients, regions (map pins), sectors, business types
 │   ├── events/               # news & events with photos
-│   └── enquiries/            # contact-form submissions: service, notifiers (adapters)
+│   ├── enquiries/            # contact-form submissions: service, notifiers (adapters)
+│   └── analytics/            # anonymous visits: page flow and time on page; dashboard reports
 ├── templates/admin/index.html  # admin dashboard
 ├── seed/content.json + seed/media/
 ├── scripts/compile_messages.py
@@ -221,6 +224,7 @@ hidden from the site — nothing is lost.
 | Clients, their logos, where they appear (home highlight, home strip, Customers strip) | **Clients → Clients** |
 | Map regions and their pin coordinates | **Clients → Regions** |
 | Contact-form messages | **Inbox → Enquiries** (badge = unread) |
+| Who visited, which pages in what order, how long on each | **Dashboard → Visitors**, **Visitors → Visits / Page views** |
 
 **Content blocks.** A page is an ordered list of blocks. Pick a *Type* and the form shows
 only that type's fields: *Introduction*, *Cards*, *Numbered list*, *Steps*, *Partner
@@ -236,6 +240,18 @@ block's *items*. Missing required fields for the chosen type are reported on sav
 and WebM for video), size (8 MB images, 60 MB video by default) and content (a renamed
 non-image or an SVG with scripts is rejected). Hero slides accept an optional Arabic-only
 image for artwork with baked-in text.
+
+**Visitor analytics.** The dashboard's *Visitors* section shows the last 7 days (visitors,
+visits, page views, average time on site, pages per visit), visits per day, the most-viewed
+pages and the latest visits, each as a flow such as *Home 4s → Our Clients 7s → About
+Company 12s*. **Visitors → Visits** lists every visit with its flow, device, language and
+total time, filterable by date, device, language, browser and OS; open one for its
+step-by-step timeline. **Visitors → Page views** lists individual page views by page.
+Time on page counts only while the page is visible. Visits are anonymous — a random id per
+browser and per tab, no cookies, no IP addresses — and browsers that send Do-Not-Track or
+Global Privacy Control are not counted, nor are bots. Schedule
+`python manage.py prune_analytics` daily to delete visits older than
+`ANALYTICS_RETENTION_DAYS`.
 
 **When changes appear.** The API reflects a save immediately. A frontend running on
 `next start` shows it within `CMS_REVALIDATE_SECONDS` (60 s by default). A static-export
@@ -262,6 +278,7 @@ Base URL: `/api/v1/`. Public, anonymous, JSON only.
 | GET | `/testimonials/` | published testimonials | paginated |
 | GET | `/partners/` | `{name, logo, website, category}` | paginated; `?category=technology\|business` |
 | POST | `/enquiries/` | `{reference, created_at}` (201) | contact form; JSON body; rate-limited |
+| POST | `/analytics/collect/` | `null` (202) | page-view report from the site's tracker; JSON or `text/plain` (sendBeacon); idempotent per `view_id`; bots dropped; rate-limited |
 
 Media fields are absolute URLs. Internal link fields are locale-free paths (see *Links*).
 
@@ -391,6 +408,7 @@ Unexpected failure → **500** (nothing about the cause is exposed):
 | `CONTENT_LIST_RETRIEVED` | 200 | List (paginated) |
 | `HEALTH_OK` | 200 | `/health/` |
 | `ENQUIRY_CREATED` | 201 | Enquiry stored |
+| `ANALYTICS_EVENT_ACCEPTED` | 202 | Page-view report accepted (also for dropped bot traffic) |
 | `VALIDATION_ERROR` | 400 | Field validation failed — see `errors` |
 | `MALFORMED_REQUEST` | 400 | Body is not valid JSON |
 | `UNSUPPORTED_LANGUAGE` | 400 | `?lang=` is not `en`/`ar` |
@@ -462,7 +480,7 @@ cached per language/query/host with signal-driven invalidation.
 ## Testing
 
 ```bash
-pytest                 # 165 tests against PostgreSQL (test DB created automatically)
+pytest                 # 199 tests against PostgreSQL (test DB created automatically)
 pytest --create-db     # after adding migrations (the test DB is reused between runs)
 ruff check .
 python manage.py spectacular --validate --fail-on-warn --file /dev/null   # schema check
@@ -481,6 +499,7 @@ The test database is migrated and loaded with the real seed content once per ses
 | Enquiry service (no HTTP), notifier adapter, 201/400/409/415/429, honeypot | `tests/test_enquiries.py` |
 | Upload validation (fake images, unsafe SVG, size), media URLs, cache invalidation | `tests/test_media_and_cache.py` |
 | Every admin page renders, RTL inputs, admin edit → API, OpenAPI validity, seed idempotency | `tests/test_admin_schema_seed.py` |
+| Visit analytics: UA/bot classification, ordered flows, monotonic durations, beacon bodies, path scrubbing, reports, dashboard/admin, retention | `tests/test_analytics.py` |
 
 `tests/contract.py::assert_envelope` is the reusable contract assertion — use it in tests
 for any new endpoint.
@@ -509,6 +528,7 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py seed_content        # first deploy only
+# cron/systemd timer, daily: python manage.py prune_analytics
 python manage.py createsuperuser     # first deploy only
 gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3
 ```

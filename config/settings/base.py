@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.clients",
     "apps.events",
     "apps.enquiries",
+    "apps.analytics",
 ]
 
 MIDDLEWARE = [
@@ -173,6 +174,8 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": env("API_THROTTLE_ANON", default="600/min"),
         "enquiries": env("API_THROTTLE_ENQUIRIES", default="5/hour"),
+        # A page reports on open, every 15s while visible, and on leave.
+        "analytics": env("API_THROTTLE_ANALYTICS", default="120/min"),
     },
     "DEFAULT_PAGINATION_CLASS": "apps.core.pagination.StandardPagination",
     "PAGE_SIZE": 20,
@@ -226,6 +229,9 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=False)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@softwarehouse-sol.com")
+
+# Visits older than this are deleted by `manage.py prune_analytics` (schedule it daily).
+ANALYTICS_RETENTION_DAYS = env.int("ANALYTICS_RETENTION_DAYS", default=180)
 
 ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")
 # Where "View site" in the admin points.
@@ -338,6 +344,13 @@ UNFOLD = {
                         "link": reverse_lazy("admin:enquiries_enquiry_changelist"),
                         "badge": "apps.enquiries.admin.new_enquiry_badge",
                     },
+                ],
+            },
+            {
+                "title": _("Visitors"),
+                "items": [
+                    {"title": _("Visits"), "icon": "timeline", "link": reverse_lazy("admin:analytics_visitsession_changelist")},
+                    {"title": _("Page views"), "icon": "visibility", "link": reverse_lazy("admin:analytics_pageview_changelist")},
                 ],
             },
             {
