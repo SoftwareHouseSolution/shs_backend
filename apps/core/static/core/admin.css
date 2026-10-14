@@ -1,0 +1,7 @@
+/* Arabic inputs: right-to-left with an Arabic-friendly font stack, so editors see the text
+   the way the site will render it. The dir/lang attributes come from RtlArabicMixin. */
+input[lang="ar"],
+textarea[lang="ar"] {
+  font-family: "Cairo", "Noto Kufi Arabic", "Segoe UI", Tahoma, sans-serif;
+  text-align: right;
+}

@@ -1,0 +1,13 @@
+# Runtime dependencies (exact versions tested: requirements.lock.txt)
+Django>=5.2,<5.3
+djangorestframework>=3.16,<3.17
+drf-spectacular>=0.30,<0.31
+django-modeltranslation>=0.20,<0.21
+django-unfold>=0.110,<0.111
+django-filter>=26,<27
+django-cors-headers>=4.9,<5
+django-environ>=0.14,<0.15
+psycopg[binary]>=3.3,<3.4
+Pillow>=12,<13
+whitenoise>=6.12,<7
+gunicorn>=26,<27

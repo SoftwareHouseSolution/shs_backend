@@ -1,0 +1,34 @@
+{% extends 'admin/base.html' %}
+{% load i18n unfold %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+    {# Dashboard: what is live, what needs Arabic, what is waiting — see apps.core.admin_utils.dashboard_callback #}
+    <div class="grid gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-5">
+        {% for kpi in kpis %}
+            {% component "unfold/components/card.html" with href=kpi.link size="md" %}
+                <p class="text-subtle text-sm">{{ kpi.title }}</p>
+                <p class="font-semibold text-2xl text-important mt-1">{{ kpi.value }}</p>
+            {% endcomponent %}
+        {% endfor %}
+    </div>
+
+    {% if untranslated_pages %}
+        <div class="mb-8">
+            {% component "unfold/components/card.html" with title=_("Pages with missing Arabic") title_icon="translate" %}
+                <ul class="flex flex-col gap-2">
+                    {% for page in untranslated_pages %}
+                        <li><a class="text-primary-600 font-medium" href="{% url 'admin:pages_page_change' page.pk %}">{{ page.title }}</a> <span class="text-subtle">/{{ page.slug }}</span></li>
+                    {% endfor %}
+                </ul>
+            {% endcomponent %}
+        </div>
+    {% endif %}
+
+    {% include "unfold/helpers/dashboard_default.html" %}
+{% endblock %}

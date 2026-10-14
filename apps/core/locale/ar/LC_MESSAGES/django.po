@@ -1,0 +1,76 @@
+# Arabic translations of the API's public messages.
+# Compile with: python scripts/compile_messages.py  (or `manage.py compilemessages` with GNU gettext)
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+# ── apps/core/codes.py ──────────────────────────────────────────────────────────────
+msgid "Content retrieved successfully."
+msgstr "تم جلب المحتوى بنجاح."
+
+msgid "Thank you — your message has been received. We will be in touch soon."
+msgstr "شكرًا لك — وصلتنا رسالتك، وسنتواصل معك قريبًا."
+
+msgid "Service is healthy."
+msgstr "الخدمة تعمل بشكل سليم."
+
+msgid "The submitted data is invalid."
+msgstr "البيانات المُرسلة غير صحيحة."
+
+msgid "The request could not be read. Check that the body is valid JSON."
+msgstr "تعذّرت قراءة الطلب. تأكد من أن محتواه بصيغة JSON صحيحة."
+
+msgid "The requested language is not supported."
+msgstr "اللغة المطلوبة غير مدعومة."
+
+msgid "Authentication is required to access this resource."
+msgstr "يلزم تسجيل الدخول للوصول إلى هذا المورد."
+
+msgid "The supplied credentials are invalid."
+msgstr "بيانات الدخول غير صحيحة."
+
+msgid "You do not have permission to perform this action."
+msgstr "ليست لديك صلاحية لتنفيذ هذا الإجراء."
+
+msgid "The requested resource was not found."
+msgstr "المورد المطلوب غير موجود."
+
+msgid "This method is not allowed for the requested resource."
+msgstr "هذه الطريقة غير مسموح بها لهذا المورد."
+
+msgid "The requested response format is not available."
+msgstr "صيغة الاستجابة المطلوبة غير متاحة."
+
+msgid "The request body format is not supported. Send JSON."
+msgstr "صيغة محتوى الطلب غير مدعومة. أرسل البيانات بصيغة JSON."
+
+msgid "The request conflicts with the current state of the resource."
+msgstr "يتعارض الطلب مع الحالة الحالية للمورد."
+
+msgid "We have already received this message. There is no need to send it again."
+msgstr "وصلتنا هذه الرسالة بالفعل، ولا داعي لإرسالها مرة أخرى."
+
+msgid "The request could not be completed."
+msgstr "تعذّر إتمام الطلب."
+
+msgid "Too many requests. Please wait a moment and try again."
+msgstr "طلبات كثيرة جدًا. يرجى الانتظار قليلًا ثم المحاولة مرة أخرى."
+
+msgid "A service we depend on did not respond. Please try again shortly."
+msgstr "لم تستجب إحدى الخدمات التي نعتمد عليها. يرجى المحاولة بعد قليل."
+
+msgid "The service is temporarily unavailable. Please try again shortly."
+msgstr "الخدمة غير متاحة مؤقتًا. يرجى المحاولة بعد قليل."
+
+msgid "An unexpected error occurred."
+msgstr "حدث خطأ غير متوقع."
+
+# ── apps/core/middleware.py ─────────────────────────────────────────────────────────
+msgid "“%(value)s” is not supported. Use one of: %(choices)s."
+msgstr "«%(value)s» غير مدعومة. استخدم إحدى القيم: %(choices)s."
+
+# ── apps/enquiries/serializers.py ───────────────────────────────────────────────────
+msgid "Enter a valid phone number."
+msgstr "أدخل رقم هاتف صحيحًا."

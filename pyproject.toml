@@ -1,0 +1,45 @@
+[project]
+name = "shs-backend"
+version = "1.0.0"
+description = "Django REST API and bilingual CMS for the Software House Solutions website"
+requires-python = ">=3.12"
+# Compatible ranges. requirements.lock.txt pins the exact versions this was tested with.
+dependencies = [
+    "Django>=5.2,<5.3",                 # LTS
+    "djangorestframework>=3.16,<3.17",
+    "drf-spectacular>=0.30,<0.31",      # OpenAPI 3 schema + Swagger/ReDoc
+    "django-modeltranslation>=0.20,<0.21",  # per-language columns (title_en, title_ar)
+    "django-unfold>=0.110,<0.111",      # admin theme
+    "django-filter>=26,<27",
+    "django-cors-headers>=4.9,<5",
+    "django-environ>=0.14,<0.15",
+    "psycopg[binary]>=3.3,<3.4",        # PostgreSQL driver
+    "Pillow>=12,<13",                   # image validation
+    "whitenoise>=6.12,<7",              # static files in production
+    "gunicorn>=26,<27",                 # WSGI server (Linux)
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=9,<10", "pytest-django>=4.14,<5", "ruff>=0.14"]
+redis = ["redis>=5"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+testpaths = ["apps", "tests"]
+addopts = "-q --reuse-db -p no:cacheprovider"
+filterwarnings = [
+    "ignore::DeprecationWarning:modeltranslation.*",
+    "ignore:No directory at:UserWarning",
+    "ignore:The default scheme will be changed:django.utils.deprecation.RemovedInDjango60Warning",  # whitenoise; STATIC_ROOT exists only after collectstatic
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["venv", "*/migrations/*"]
+
+[tool.ruff.lint]
+# Pyflakes, syntax errors, bugbear, import order, pyupgrade.
+select = ["F", "E9", "B", "I", "UP"]
+ignore = ["B008", "UP017"]
