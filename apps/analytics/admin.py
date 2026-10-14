@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from unfold.decorators import display
 
@@ -26,7 +25,7 @@ def _flow_html(session, titles, *, limit: int | None = None):
     steps = reports.flow(session, titles)
     shown = steps[:limit] if limit else steps
     chips = format_html_join(
-        mark_safe('<span class="text-base-400"> → </span>'),
+        format_html('<span class="text-base-400"> {} </span>', reports.flow_arrow()),
         '<span class="whitespace-nowrap" title="{}"><b>{}</b> <span class="text-base-500">{}</span></span>',
         ((s.path, s.label, s.duration) for s in shown),
     )

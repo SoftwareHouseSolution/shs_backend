@@ -61,7 +61,11 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    # Activates the requested language for /api/ only. The admin keeps LANGUAGE_CODE.
+    # The admin's language: the editor's choice (language switcher → cookie), else the
+    # browser's Accept-Language, else LANGUAGE_CODE.
+    "django.middleware.locale.LocaleMiddleware",
+    # The API's language (?lang=, then Accept-Language). Runs after LocaleMiddleware and
+    # overrides it for /api/, so an editor's admin language never leaks into API responses.
     "apps.core.middleware.ApiLanguageMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -112,6 +116,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# The admin is the only login on this site. Without this, signing in at /admin/login/
+# directly (no ?next=) lands on Django's default /accounts/profile/, which is a 404.
+LOGIN_URL = reverse_lazy("admin:login")
+LOGIN_REDIRECT_URL = reverse_lazy("admin:index")
 
 # ── Internationalisation ─────────────────────────────────────────────────────────────
 LANGUAGE_CODE = "en"
@@ -275,6 +284,8 @@ UNFOLD = {
     "SITE_URL": FRONTEND_URL,
     "SITE_SYMBOL": "edit_note",
     "SHOW_HISTORY": True,
+    # Language switcher in the user menu (posts to /i18n/setlang/).
+    "SHOW_LANGUAGES": True,
     "SHOW_VIEW_ON_SITE": True,
     "ENVIRONMENT": "apps.core.admin_utils.environment_callback",
     "DASHBOARD_CALLBACK": "apps.core.admin_utils.dashboard_callback",

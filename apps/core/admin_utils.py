@@ -10,6 +10,7 @@
 
 from django.conf import settings
 from django.contrib import admin, messages
+from django.db import models
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -19,6 +20,8 @@ from modeltranslation.admin import TranslationAdmin, TranslationStackedInline, T
 from modeltranslation.translator import NotRegistered, translator
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.decorators import action, display
+
+from .media import LinkField
 
 LANGUAGE_TABS = (("en", _("English")), ("ar", _("Arabic — العربية")))
 
@@ -61,15 +64,29 @@ def missing_arabic(obj) -> list[str]:
     return gaps
 
 
-class RtlArabicMixin:
-    """Arabic inputs type and display right-to-left, in the admin as on the site."""
+class DirectionalInputsMixin:
+    """Every input types in the direction of what goes into it, whatever the admin's own
+    language: Arabic copy right-to-left; English copy, links, addresses and slugs
+    left-to-right — so an English field stays readable in the Arabic admin and vice versa."""
+
+    LTR_FIELD_TYPES = (models.URLField, models.EmailField, models.SlugField)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         field = super().formfield_for_dbfield(db_field, request, **kwargs)
-        if field is not None and getattr(db_field, "language", None) == "ar":
-            widget = getattr(field.widget, "widget", field.widget)
+        if field is None:
+            return field
+        widget = getattr(field.widget, "widget", field.widget)
+        language = getattr(db_field, "language", None)
+        if language == "ar":
             widget.attrs.update({"dir": "rtl", "lang": "ar"})
+        elif language == "en":
+            widget.attrs.update({"dir": "ltr", "lang": "en"})
+        elif isinstance(db_field, (*self.LTR_FIELD_TYPES, LinkField)) or db_field.name.startswith("phone"):
+            widget.attrs.setdefault("dir", "ltr")
         return field
+
+
+RtlArabicMixin = DirectionalInputsMixin  # earlier name, kept for imports
 
 
 class TranslationStatusMixin:
@@ -109,7 +126,7 @@ class ContentAdmin(RtlArabicMixin, TranslationStatusMixin, ModelAdmin, Translati
     compressed_fields = True
 
 
-class PlainAdmin(ModelAdmin):
+class PlainAdmin(DirectionalInputsMixin, ModelAdmin):
     """Base admin for models with nothing to translate."""
 
     list_per_page = 50

@@ -96,15 +96,24 @@ tick *Staff status*, and give them a group with the content permissions they nee
 (e.g. all `pages`, `home`, `content`, `events`, `clients` permissions plus *view/change
 enquiry*).
 
-### Compiling translations
+### Translations (API messages and the admin interface)
 
-The Arabic API messages live in `apps/core/locale/ar/LC_MESSAGES/django.po`; the compiled
-`.mo` is committed. After editing the `.po`:
+All Arabic strings — API messages, admin labels and help texts, and the Unfold admin
+theme's own interface (it ships no Arabic) — live in
+`apps/core/locale/ar/LC_MESSAGES/django.po`; the compiled `.mo` is committed. Django's own
+admin strings come from Django's Arabic catalogue.
 
 ```bash
+python scripts/extract_messages.py      # lists strings with no Arabic yet (JSON); empty = complete
+# add msgid/msgstr pairs for them to the .po, then:
 python scripts/compile_messages.py      # no GNU gettext needed
-# or: python manage.py compilemessages  # if msgfmt is installed
+# or, with GNU gettext installed: python manage.py makemessages -l ar && python manage.py compilemessages
 ```
+
+`extract_messages.py` is a gettext-free stand-in for `makemessages`: it scans `apps/`,
+`config/`, `templates/` and the installed parts of Unfold, and skips strings that Django's
+catalogues for installed apps already translate. One developer-only Unfold warning is
+intentionally left in English.
 
 ---
 
@@ -194,6 +203,13 @@ where there are business rules — `services.py`.
 ## Managing content in the admin
 
 Log in at `/admin/`. The sidebar is grouped by what an editor is looking for.
+
+**Admin language.** The admin is available in English and Arabic (right-to-left). It opens
+in the browser's language; switch any time from the user menu at the bottom of the sidebar
+(*English / العربيّة*) — the choice is remembered in a cookie. It only changes the admin's
+interface: which content language you edit is chosen by the English/Arabic tabs on each
+form, and the API's language is never affected by it. English inputs, links, e-mails and
+slugs stay left-to-right inside the Arabic admin.
 
 **Bilingual editing.** Every translatable record has **English** and **Arabic — العربية**
 tabs. Arabic inputs are right-to-left. English is required; Arabic is optional — if it is

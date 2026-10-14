@@ -8,6 +8,8 @@ from datetime import date, datetime, timedelta
 from django.db.models import Avg, Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
+from django.utils.formats import date_format
+from django.utils.translation import get_language_bidi
 from django.utils.translation import gettext as _
 
 from .models import PageView, VisitSession
@@ -22,12 +24,14 @@ def normalise_path(path: str) -> str:
 
 
 def page_titles() -> dict[str, str]:
-    """Normalised path → page name, from the CMS. One query; call once per admin request."""
+    """Normalised path → page name in the active language, from the CMS. One query."""
     from apps.pages.models import Page
 
     titles = {"/": _("Home")}
-    for slug, title in Page.objects.values_list("slug", "title_en"):
-        titles[f"/{slug}"] = title
+    # Attribute access, not values_list: it resolves the active language with fallback,
+    # so the Arabic admin shows Arabic page names.
+    for page in Page.objects.only("slug", "title_en", "title_ar"):
+        titles[f"/{page.slug}"] = page.title
     return titles
 
 
@@ -36,14 +40,20 @@ def label_for(path: str, titles: dict[str, str]) -> str:
 
 
 def format_duration(ms: int | float | None) -> str:
+    """Compact, in the active language: 4s / 1m 05s / 1h 02m (٤ ث / ١ د ٠٥ ث …)."""
     seconds = int(round((ms or 0) / 1000))
     if seconds < 60:
-        return f"{seconds}s"
+        return _("%(s)ds") % {"s": seconds}
     minutes, seconds = divmod(seconds, 60)
     if minutes < 60:
-        return f"{minutes}m {seconds:02d}s"
+        return _("%(m)dm %(s)02ds") % {"m": minutes, "s": seconds}
     hours, minutes = divmod(minutes, 60)
-    return f"{hours}h {minutes:02d}m"
+    return _("%(h)dh %(m)02dm") % {"h": hours, "m": minutes}
+
+
+def flow_arrow() -> str:
+    """The flow reads in the interface's direction, so in Arabic the arrow points left."""
+    return "←" if get_language_bidi() else "→"
 
 
 @dataclass(frozen=True)
@@ -62,7 +72,7 @@ def flow(session: VisitSession, titles: dict[str, str]) -> list[Step]:
 
 
 def flow_text(session: VisitSession, titles: dict[str, str]) -> str:
-    return " → ".join(f"{s.label} {s.duration}" for s in flow(session, titles))
+    return f" {flow_arrow()} ".join(f"{s.label} {s.duration}" for s in flow(session, titles))
 
 
 def sessions_with_totals():
@@ -140,7 +150,7 @@ def daily_visits(days: int = 14) -> tuple[list[str], list[int]]:
     labels, values = [], []
     for i in range(days):
         day: date = start + timedelta(days=i)
-        labels.append(day.strftime("%d %b"))
+        labels.append(date_format(day, "j M"))  # localised month names
         values.append(counts.get(day, 0))
     return labels, values
 

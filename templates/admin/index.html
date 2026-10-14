@@ -1,5 +1,6 @@
 {% extends 'admin/base.html' %}
 {% load i18n unfold %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
 
@@ -74,12 +75,12 @@
                                 {{ r.visit.started_at|date:"d M, H:i" }} · {{ r.visit.get_device_display }} · {{ r.visit.language|upper }} · {{ r.visit.page_count }} {% trans "pages" %} · {{ r.total }}
                             </a>
                             <p class="text-sm leading-6">
-                                {% for s in r.steps %}<span class="whitespace-nowrap" title="{{ s.path }}"><b>{{ s.label }}</b> <span class="text-base-500">{{ s.duration }}</span></span>{% if not forloop.last %}<span class="text-base-400"> → </span>{% endif %}{% endfor %}
+                                {% for s in r.steps %}<span class="whitespace-nowrap" title="{{ s.path }}"><b>{{ s.label }}</b> <span class="text-base-500">{{ s.duration }}</span></span>{% if not forloop.last %}<span class="text-base-400"> {% if LANGUAGE_BIDI %}←{% else %}→{% endif %} </span>{% endif %}{% endfor %}
                             </p>
                         </li>
                     {% endfor %}
                 </ul>
-                <a class="inline-block mt-3 text-primary-600 font-medium text-sm" href="{{ all_visits }}">{% trans "All visits" %} →</a>
+                <a class="inline-block mt-3 text-primary-600 font-medium text-sm" href="{{ all_visits }}">{% trans "All visits" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a>
             {% else %}
                 <p class="text-subtle">{% trans "No visits recorded yet. They appear here as soon as someone browses the site." %}</p>
             {% endif %}

@@ -77,3 +77,1415 @@ msgstr "«%(value)s» غير مدعومة. استخدم إحدى القيم: %(c
 # ── apps/enquiries/serializers.py ───────────────────────────────────────────────────
 msgid "Enter a valid phone number."
 msgstr "أدخل رقم هاتف صحيحًا."
+
+# ── Admin interface: our labels and Unfold's interface strings ─────────────────
+# Generated from scripts/extract_messages.py output; edit freely, then recompile.
+
+msgid "%(h)dh %(m)02dm"
+msgstr "%(h)d س %(m)02d د"
+
+msgid "%(m)dm %(s)02ds"
+msgstr "%(m)d د %(s)02d ث"
+
+msgid "%(n)d item(s) published."
+msgstr "تم نشر %(n)d عنصر."
+
+msgid "%(n)d item(s) unpublished."
+msgstr "تم إلغاء نشر %(n)d عنصر."
+
+msgid "%(s)ds"
+msgstr "%(s)d ث"
+
+msgid "1200×630 recommended."
+msgstr "يُفضّل مقاس 1200×630."
+
+msgid "A company name — not translated."
+msgstr "اسم شركة — لا يُترجم."
+
+msgid "A group with children cannot also be a link."
+msgstr "لا يمكن لمجموعة تحتوي على روابط أن تكون رابطًا أيضًا."
+
+msgid "Access"
+msgstr "الصلاحيات"
+
+msgid "Add a content block"
+msgstr "إضافة قسم محتوى"
+
+msgid "Add an MP4 too — Safari cannot play WebM."
+msgstr "أضف ملف MP4 أيضًا — متصفح Safari لا يشغّل WebM."
+
+msgid "Add new item"
+msgstr "إضافة عنصر جديد"
+
+msgid "Add row"
+msgstr "إضافة صف"
+
+msgid "Add the landscape video; the portrait one is optional."
+msgstr "أضف الفيديو الأفقي؛ الفيديو الرأسي اختياري."
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "After you've created a user, you’ll be able to edit more user options."
+msgstr "بعد إنشاء المستخدم ستتمكن من تعديل المزيد من خياراته."
+
+msgid "All applications"
+msgstr "كل التطبيقات"
+
+msgid "All visits"
+msgstr "كل الزيارات"
+
+msgid "An item cannot be its own parent."
+msgstr "لا يمكن أن يكون العنصر أبًا لنفسه."
+
+msgid "Apply Filters"
+msgstr "تطبيق عوامل التصفية"
+
+msgid "Arabic missing"
+msgstr "العربية ناقصة"
+
+msgid "Arabic — العربية"
+msgstr "العربية"
+
+msgid "Available shortcuts"
+msgstr "الاختصارات المتاحة"
+
+msgid "Avg. time"
+msgstr "متوسط المدة"
+
+msgid "Avg. time on site"
+msgstr "متوسط مدة الزيارة"
+
+msgid "Badges"
+msgstr "الشارات"
+
+msgid "Big picture"
+msgstr "الصورة الكاملة"
+
+msgid "Big picture list"
+msgstr "قائمة الصورة الكاملة"
+
+msgid "Blocks"
+msgstr "الأقسام"
+
+msgid "Bold"
+msgstr "عريض"
+
+msgid "Brand"
+msgstr "الهوية"
+
+msgid "Business partner"
+msgstr "شريك أعمال"
+
+msgid "Business partners"
+msgstr "شركاء الأعمال"
+
+msgid "Business types"
+msgstr "أنواع النشاط"
+
+msgid "Button text (CTA) or caption (logos)."
+msgstr "نص الزر (دعوة لاتخاذ إجراء) أو التسمية التوضيحية (الشعارات)."
+
+msgid "Buttons and footer"
+msgstr "الأزرار والتذييل"
+
+msgid "By %(filter_title)s"
+msgstr "حسب %(filter_title)s"
+
+msgid "Call to action"
+msgstr "دعوة لاتخاذ إجراء"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Cards — a grid of titled cards"
+msgstr "بطاقات — شبكة بطاقات بعناوين"
+
+msgid "Cells"
+msgstr "الخلايا"
+
+msgid "Changelist shortcuts"
+msgstr "اختصارات قائمة العناصر"
+
+msgid "Choose file to upload"
+msgstr "اختر ملفًا لرفعه"
+
+msgid "Classification"
+msgstr "التصنيف"
+
+msgid "Click to cancel"
+msgstr "انقر للإلغاء"
+
+msgid "Click to download"
+msgstr "انقر للتنزيل"
+
+msgid "Client band"
+msgstr "شريط العملاء"
+
+msgid "Clients"
+msgstr "العملاء"
+
+msgid "Closed"
+msgstr "مغلق"
+
+msgid "Closing band"
+msgstr "الشريط الختامي"
+
+msgid "Code"
+msgstr "كود"
+
+msgid "Columns"
+msgstr "الأعمدة"
+
+msgid "Command tool shortcuts"
+msgstr "اختصارات أداة الأوامر"
+
+msgid "Comparison"
+msgstr "المقارنة"
+
+msgid "Comparison table"
+msgstr "جدول مقارنة"
+
+msgid "Comparison tables"
+msgstr "جداول المقارنة"
+
+msgid "Complete"
+msgstr "مكتمل"
+
+msgid "Contact"
+msgstr "التواصل"
+
+msgid "Content"
+msgstr "المحتوى"
+
+msgid "Content blocks"
+msgstr "أقسام المحتوى"
+
+msgid "Context"
+msgstr "السياق"
+
+msgid "Core"
+msgstr "النواة"
+
+msgid "Counts up when shown."
+msgstr "يتزايد العدّاد عند ظهوره."
+
+msgid "Cover"
+msgstr "الغلاف"
+
+msgid "Create new record"
+msgstr "إنشاء سجل جديد"
+
+msgid "Customers strip"
+msgstr "شريط صفحة العملاء"
+
+msgid "Customers — header, client map and contact"
+msgstr "العملاء — الترويسة وخريطة العملاء والتواصل"
+
+msgid "Dark"
+msgstr "داكن"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Dataset not found. No action performed."
+msgstr "لم يتم العثور على البيانات. لم يُنفَّذ أي إجراء."
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Date from"
+msgstr "من تاريخ"
+
+msgid "Date to"
+msgstr "إلى تاريخ"
+
+msgid "Defaults to the site's title."
+msgstr "يُستخدم عنوان الموقع إن تُرك فارغًا."
+
+msgid "Defaults to the title."
+msgstr "يُستخدم العنوان إن تُرك فارغًا."
+
+msgid "Desktop"
+msgstr "كمبيوتر"
+
+msgid "Development"
+msgstr "بيئة التطوير"
+
+msgid "Digits only, with country code, e.g. +201558856988."
+msgstr "أرقام فقط مع رمز الدولة، مثل ‎+201558856988."
+
+msgid "Do not include /en or /ar — the website adds the reader's language itself."
+msgstr "لا تضف ‎/en أو ‎/ar — يضيف الموقع لغة القارئ تلقائيًا."
+
+msgid "Enquiries"
+msgstr "الاستفسارات"
+
+msgid "Enter an URL"
+msgstr "أدخل رابطًا"
+
+msgid "Enter an internal path (/about-company), a fragment (#contact), a full URL (https://…), or a mailto:/tel: link."
+msgstr "أدخل مسارًا داخليًا (‎/about-company) أو جزءًا من الصفحة (‎#contact) أو رابطًا كاملًا (‎https://…) أو رابط mailto:/tel:."
+
+msgid "Events"
+msgstr "الفعاليات"
+
+msgid "Events timeline"
+msgstr "الخط الزمني للفعاليات"
+
+msgid "False"
+msgstr "لا"
+
+msgid "Figures"
+msgstr "الأرقام"
+
+msgid "File is too large (%(size).1f MB). The limit is %(limit)d MB."
+msgstr "الملف كبير جدًا (%(size).1f ميجابايت). الحد الأقصى %(limit)d ميجابايت."
+
+msgid "Flow"
+msgstr "المسار"
+
+msgid "Follow-up"
+msgstr "المتابعة"
+
+msgid "Footer columns"
+msgstr "أعمدة التذييل"
+
+msgid "For editors only; not shown on the site."
+msgstr "للمحررين فقط؛ لا يظهر على الموقع."
+
+msgid "Forgotten your password or username?"
+msgstr "هل نسيت كلمة المرور أو اسم المستخدم؟"
+
+msgid "From"
+msgstr "من"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Give both latitude and longitude, or neither."
+msgstr "أدخل خط العرض وخط الطول معًا، أو اتركهما فارغين."
+
+msgid "Give either a number or a text value, not both."
+msgstr "أدخل رقمًا أو قيمة نصية، وليس الاثنين معًا."
+
+msgid "Global shortcuts"
+msgstr "اختصارات عامة"
+
+msgid "Go back"
+msgstr "رجوع"
+
+msgid "Group"
+msgstr "مجموعة"
+
+msgid "Groups"
+msgstr "المجموعات"
+
+msgid "Hardware tiles — image cards"
+msgstr "بطاقات الأجهزة — بطاقات بالصور"
+
+msgid "Heading"
+msgstr "العنوان"
+
+msgid "Hero slides"
+msgstr "شرائح الواجهة"
+
+msgid "Home highlight"
+msgstr "إبراز في الرئيسية"
+
+msgid "Home page"
+msgstr "الصفحة الرئيسية"
+
+msgid "Home strip"
+msgstr "شريط الرئيسية"
+
+msgid "How-to"
+msgstr "خطوات العمل"
+
+msgid "How-to steps"
+msgstr "خطوات العمل"
+
+msgid "Image preview"
+msgstr "معاينة الصورة"
+
+msgid "Images, links and tables"
+msgstr "الصور والروابط والجداول"
+
+msgid "In progress"
+msgstr "قيد المتابعة"
+
+msgid "Inbox"
+msgstr "الوارد"
+
+msgid "Indent decrease"
+msgstr "تقليل المسافة البادئة"
+
+msgid "Indent increase"
+msgstr "زيادة المسافة البادئة"
+
+msgid "Instead of a number, e.g. 1988 or 24/7."
+msgstr "بدلًا من الرقم، مثل 1988 أو 24/7."
+
+msgid "Interior pages"
+msgstr "الصفحات الداخلية"
+
+msgid "Intro video (Customers template)"
+msgstr "فيديو تعريفي (قالب العملاء)"
+
+msgid "Introduction — label, heading, text"
+msgstr "مقدمة — تسمية وعنوان ونص"
+
+msgid "Italic"
+msgstr "مائل"
+
+msgid "Items inside a group need a link."
+msgstr "العناصر داخل المجموعة تحتاج إلى رابط."
+
+msgid "Latest visits"
+msgstr "أحدث الزيارات"
+
+msgid "Leave empty for a dropdown group."
+msgstr "اتركه فارغًا لإنشاء مجموعة منسدلة."
+
+msgid "Leave empty to hide the section."
+msgstr "اتركه فارغًا لإخفاء القسم."
+
+msgid "Leave empty when the date is not established — the site shows “Recent”."
+msgstr "اتركه فارغًا إذا لم يكن التاريخ مؤكدًا — سيعرض الموقع «حديثًا»."
+
+msgid "Light"
+msgstr "فاتح"
+
+msgid "Link"
+msgstr "رابط"
+
+msgid "Links"
+msgstr "الروابط"
+
+msgid "Logo"
+msgstr "الشعار"
+
+msgid "Map"
+msgstr "الخريطة"
+
+msgid "Mark as closed"
+msgstr "تعيين كمغلق"
+
+msgid "Mark as in progress"
+msgstr "تعيين كقيد المتابعة"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Mobile"
+msgstr "جوال"
+
+msgid "Navigate"
+msgstr "تنقّل"
+
+msgid "Navigation"
+msgstr "القائمة"
+
+msgid "Navigation has two levels; choose a top-level group."
+msgstr "القائمة من مستويين فقط؛ اختر مجموعة من المستوى الأعلى."
+
+msgid "New"
+msgstr "جديد"
+
+msgid "New enquiries"
+msgstr "استفسارات جديدة"
+
+msgid "News & events"
+msgstr "الأخبار والفعاليات"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "No data"
+msgstr "لا توجد بيانات"
+
+msgid "No results found"
+msgstr "لا توجد نتائج"
+
+msgid "No visits recorded yet."
+msgstr "لم تُسجَّل أي زيارات بعد."
+
+msgid "No visits recorded yet. They appear here as soon as someone browses the site."
+msgstr "لم تُسجَّل أي زيارات بعد. ستظهر هنا بمجرد أن يتصفح أحد الموقع."
+
+msgid "Not enough data."
+msgstr "لا توجد بيانات كافية."
+
+msgid "Nothing matched your search"
+msgstr "لا شيء يطابق بحثك"
+
+msgid "Numbered list"
+msgstr "قائمة مرقمة"
+
+msgid "On map"
+msgstr "على الخريطة"
+
+msgid "Only one testimonial can be featured; featuring this one un-features the other."
+msgstr "يمكن تمييز رأي عميل واحد فقط؛ تمييز هذا يلغي تمييز الآخر."
+
+msgid "Open command tool"
+msgstr "فتح أداة الأوامر"
+
+msgid "Open selection"
+msgstr "فتح العنصر المحدد"
+
+msgid "Open selection in new tab"
+msgstr "فتح العنصر المحدد في تبويب جديد"
+
+msgid "Open shortcuts list"
+msgstr "فتح قائمة الاختصارات"
+
+msgid "Opened at"
+msgstr "وقت الفتح"
+
+msgid "Optional — for artwork with text or direction baked in."
+msgstr "اختياري — للتصاميم التي تحتوي على نص أو اتجاه مدمج."
+
+msgid "Optional. Leave empty to use the built-in SWH lockup."
+msgstr "اختياري. اتركه فارغًا لاستخدام شعار SWH الافتراضي."
+
+msgid "Optional. Shown over the hero photography."
+msgstr "اختياري. يظهر فوق صور الواجهة الرئيسية."
+
+msgid "Ordered list"
+msgstr "قائمة مرقمة"
+
+msgid "Page"
+msgstr "الصفحة"
+
+msgid "Page views"
+msgstr "مشاهدات الصفحات"
+
+msgid "Pages"
+msgstr "الصفحات"
+
+msgid "Pages per visit"
+msgstr "صفحات لكل زيارة"
+
+msgid "Pages with missing Arabic"
+msgstr "صفحات ينقصها المحتوى العربي"
+
+msgid "Paragraph"
+msgstr "فقرة"
+
+msgid "Partner logos"
+msgstr "شعارات الشركاء"
+
+msgid "Partners"
+msgstr "الشركاء"
+
+msgid "Path through the site"
+msgstr "المسار داخل الموقع"
+
+msgid "Photo"
+msgstr "الصورة"
+
+msgid "Photo gallery (from an event)"
+msgstr "معرض صور (من فعالية)"
+
+msgid "Photos"
+msgstr "الصور"
+
+msgid "Placement"
+msgstr "أماكن الظهور"
+
+msgid "Placement on the site"
+msgstr "أماكن الظهور في الموقع"
+
+msgid "Position in the featured strip on the Customers page. Leave empty to leave out."
+msgstr "الترتيب في الشريط المميز بصفحة العملاء. اتركه فارغًا لعدم الإظهار."
+
+msgid "Preview"
+msgstr "معاينة"
+
+msgid "Previous"
+msgstr "السابق"
+
+msgid "Production"
+msgstr "بيئة التشغيل"
+
+msgid "Publish selected"
+msgstr "نشر العناصر المحددة"
+
+msgid "Published pages"
+msgstr "الصفحات المنشورة"
+
+msgid "Quote"
+msgstr "الاقتباس"
+
+msgid "Raw passwords are not stored, so there is no way to see this user’s password, but you can change the password using <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">this form</a>."
+msgstr "لا تُخزَّن كلمات المرور كما هي، لذا لا يمكن رؤية كلمة مرور هذا المستخدم، لكن يمكنك تغييرها باستخدام <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">هذا النموذج</a>."
+
+msgid "Read aloud by screen readers."
+msgstr "تقرؤه برامج قراءة الشاشة."
+
+msgid "Recent searches"
+msgstr "عمليات البحث الأخيرة"
+
+msgid "Record picture"
+msgstr "صورة السجل"
+
+msgid "Redo"
+msgstr "إعادة"
+
+msgid "Regions"
+msgstr "المناطق"
+
+msgid "Reset filters"
+msgstr "إعادة ضبط التصفية"
+
+msgid "Return to site"
+msgstr "العودة إلى الموقع"
+
+msgid "Returning visitor"
+msgstr "زائر عائد"
+
+msgid "Row %(n)s"
+msgstr "الصف %(n)s"
+
+msgid "Rows"
+msgstr "الصفوف"
+
+msgid "Run"
+msgstr "تشغيل"
+
+msgid "SEO"
+msgstr "تحسين محركات البحث"
+
+msgid "SEO title"
+msgstr "عنوان محركات البحث"
+
+msgid "SVG files may not contain scripts, event handlers or embedded content."
+msgstr "لا يجوز أن تحتوي ملفات SVG على نصوص برمجية أو معالجات أحداث أو محتوى مضمّن."
+
+msgid "SWH's own column."
+msgstr "عمود SWH نفسه."
+
+msgid "Same for every visit from one browser."
+msgstr "ثابت لكل الزيارات من المتصفح نفسه."
+
+msgid "Save the page first, then add blocks."
+msgstr "احفظ الصفحة أولًا، ثم أضف الأقسام."
+
+msgid "Search apps and models..."
+msgstr "ابحث في التطبيقات والنماذج..."
+
+msgid "Sectors"
+msgstr "القطاعات"
+
+msgid "Select"
+msgstr "اختر"
+
+msgid "Select action"
+msgstr "اختر إجراءً"
+
+msgid "Select action to run"
+msgstr "اختر الإجراء المراد تنفيذه"
+
+msgid "Select currency"
+msgstr "اختر العملة"
+
+msgid "Select record"
+msgstr "اختر سجلًا"
+
+msgid "Select value"
+msgstr "اختر قيمة"
+
+msgid "Separate paragraphs with a blank line."
+msgstr "افصل بين الفقرات بسطر فارغ."
+
+msgid "Services"
+msgstr "الخدمات"
+
+msgid "Services cards"
+msgstr "بطاقات الخدمات"
+
+msgid "Shared content"
+msgstr "المحتوى المشترك"
+
+msgid "Shown large and still above the home page logo strip. Leave empty to not highlight."
+msgstr "يظهر كبيرًا وثابتًا فوق شريط الشعارات في الصفحة الرئيسية. اتركه فارغًا لعدم الإبراز."
+
+msgid "Shown on steps, e.g. 01."
+msgstr "يظهر على الخطوات، مثل 01."
+
+msgid "Site"
+msgstr "الموقع"
+
+msgid "Site settings"
+msgstr "إعدادات الموقع"
+
+msgid "Social links"
+msgstr "روابط التواصل"
+
+msgid "Stable identifier used in the page markup. Not shown to visitors."
+msgstr "معرّف ثابت يُستخدم في بنية الصفحة. لا يظهر للزوار."
+
+msgid "Standard — header and content blocks"
+msgstr "قياسي — ترويسة وأقسام محتوى"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Steps"
+msgstr "الخطوات"
+
+msgid "Steps — numbered cards"
+msgstr "خطوات — بطاقات مرقمة"
+
+msgid "Strike"
+msgstr "يتوسطه خط"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "System"
+msgstr "النظام"
+
+msgid "Tablet"
+msgstr "جهاز لوحي"
+
+msgid "Technology partner"
+msgstr "شريك تقني"
+
+msgid "Technology partners"
+msgstr "الشركاء التقنيون"
+
+msgid "Testimonials"
+msgstr "آراء العملاء"
+
+msgid "The chosen parent is a link, not a dropdown group."
+msgstr "العنصر الأب المختار رابط وليس مجموعة منسدلة."
+
+msgid "The column lists every link inside these groups, in menu order."
+msgstr "يعرض العمود كل الروابط داخل هذه المجموعات بترتيب القائمة."
+
+msgid "The page's address: /en/<slug> and /ar/<slug>. Changing it breaks existing links."
+msgstr "عنوان الصفحة: ‎/en/<slug> و‎/ar/<slug>. تغييره يعطّل الروابط الحالية."
+
+msgid "The slide's photo, or the poster frame for a video slide. 1920×1080 or larger."
+msgstr "صورة الشريحة، أو صورة الغلاف لشريحة الفيديو. 1920×1080 أو أكبر."
+
+msgid "The year established is appended."
+msgstr "تُضاف سنة التأسيس في النهاية."
+
+msgid "This column belongs to a different table."
+msgstr "هذا العمود يتبع جدولًا آخر."
+
+msgid "This field is required for this block type."
+msgstr "هذا الحقل مطلوب لهذا النوع من الأقسام."
+
+msgid "This file is not a valid SVG image."
+msgstr "هذا الملف ليس صورة SVG صالحة."
+
+msgid "This item will be deleted."
+msgstr "سيُحذف هذا العنصر."
+
+msgid "This page yielded into no results."
+msgstr "لم تُسفر هذه الصفحة عن أي نتائج."
+
+msgid "Tick (✓) or cross (✗)."
+msgstr "علامة صح (✓) أو خطأ (✗)."
+
+msgid "Tick while the URL is a stand-in, so it is easy to find and replace."
+msgstr "فعّله ما دام الرابط مؤقتًا، ليسهل العثور عليه واستبداله."
+
+msgid "Time on page"
+msgstr "المدة على الصفحة"
+
+msgid "Time on site"
+msgstr "مدة الزيارة"
+
+msgid "To"
+msgstr "إلى"
+
+msgid "Toggle dark/light mode"
+msgstr "التبديل بين الوضع الداكن والفاتح"
+
+msgid "Toggle filter"
+msgstr "إظهار/إخفاء التصفية"
+
+msgid "Toggle password visibility"
+msgstr "إظهار/إخفاء كلمة المرور"
+
+msgid "Toggle sidebar"
+msgstr "إظهار/إخفاء الشريط الجانبي"
+
+msgid "Top pages (7 days)"
+msgstr "أكثر الصفحات زيارة (7 أيام)"
+
+msgid "Translation"
+msgstr "الترجمة"
+
+msgid "True"
+msgstr "نعم"
+
+msgid "Type to search"
+msgstr "اكتب للبحث"
+
+msgid "Underlined"
+msgstr "تحته خط"
+
+msgid "Undo"
+msgstr "تراجع"
+
+msgid "Unlink"
+msgstr "إزالة الرابط"
+
+msgid "Unordered list"
+msgstr "قائمة نقطية"
+
+msgid "Unpublish selected"
+msgstr "إلغاء نشر العناصر المحددة"
+
+msgid "Unpublished items are kept but hidden from the website."
+msgstr "العناصر غير المنشورة تبقى محفوظة لكنها مخفية عن الموقع."
+
+msgid "Upload a valid image. The file is not an image or is corrupted."
+msgstr "ارفع صورة صالحة. الملف ليس صورة أو أنه تالف."
+
+msgid "Users"
+msgstr "المستخدمون"
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "Visit"
+msgstr "الزيارة"
+
+msgid "Visitor"
+msgstr "الزائر"
+
+msgid "Visitor analytics"
+msgstr "تحليلات الزوار"
+
+msgid "Visitors"
+msgstr "الزوار"
+
+msgid "Visitors (7 days)"
+msgstr "الزوار (7 أيام)"
+
+msgid "Visits"
+msgstr "الزيارات"
+
+msgid "Visits per day (14 days)"
+msgstr "الزيارات يوميًا (14 يومًا)"
+
+msgid "Website content"
+msgstr "محتوى الموقع"
+
+msgid "Welcome"
+msgstr "مرحبًا"
+
+msgid "Welcome back to"
+msgstr "مرحبًا بعودتك إلى"
+
+msgid "What the photo shows, for screen readers."
+msgstr "ما تُظهره الصورة، لبرامج قراءة الشاشة."
+
+msgid "WhatsApp link"
+msgstr "رابط واتساب"
+
+msgid "Where new website enquiries are e-mailed. Falls back to the server setting."
+msgstr "البريد الذي تُرسل إليه استفسارات الموقع الجديدة. يُستخدم إعداد الخادم إن تُرك فارغًا."
+
+msgid "Where the region's label sits on the map. Leave both empty for no pin."
+msgstr "موضع اسم المنطقة على الخريطة. اترك الحقلين فارغين لعدم وضع علامة."
+
+msgid ""
+"You are authenticated as %(username)s, but are not authorized to\n"
+"                    access this page. Would you like to login to a different account?"
+msgstr "أنت مسجّل الدخول باسم %(username)s، لكن ليست لديك صلاحية للوصول إلى هذه الصفحة. هل تريد تسجيل الدخول بحساب آخر؟"
+
+msgid "You can not create nested object without parent"
+msgstr "لا يمكن إنشاء عنصر فرعي دون عنصر أب"
+
+msgid "You have been successfully logged out from the administration"
+msgstr "تم تسجيل خروجك من لوحة الإدارة بنجاح"
+
+msgid "address"
+msgstr "العنوان"
+
+msgid "author"
+msgstr "الكاتب"
+
+msgid "badge"
+msgstr "شارة"
+
+msgid "badges"
+msgstr "الشارات"
+
+msgid "big picture: heading"
+msgstr "الصورة الكاملة: العنوان"
+
+msgid "big picture: image"
+msgstr "الصورة الكاملة: الصورة"
+
+msgid "big picture: image description"
+msgstr "الصورة الكاملة: وصف الصورة"
+
+msgid "big picture: text"
+msgstr "الصورة الكاملة: النص"
+
+msgid "browser"
+msgstr "المتصفح"
+
+msgid "business type"
+msgstr "نوع النشاط"
+
+msgid "business types"
+msgstr "أنواع النشاط"
+
+msgid "button"
+msgstr "الزر"
+
+msgid "button / caption"
+msgstr "الزر / التسمية"
+
+msgid "button link"
+msgstr "رابط الزر"
+
+msgid "came from"
+msgstr "مصدر الزيارة"
+
+msgid "careers e-mail"
+msgstr "بريد التوظيف"
+
+msgid "category"
+msgstr "الفئة"
+
+msgid "cell"
+msgstr "خلية"
+
+msgid "cells"
+msgstr "الخلايا"
+
+msgid "client"
+msgstr "عميل"
+
+msgid "client band: button"
+msgstr "شريط العملاء: الزر"
+
+msgid "client band: button link"
+msgstr "شريط العملاء: رابط الزر"
+
+msgid "client band: sentence"
+msgstr "شريط العملاء: الجملة"
+
+msgid "client band: strip accessible name"
+msgstr "شريط العملاء: الاسم الوصفي للشريط"
+
+msgid "clients"
+msgstr "العملاء"
+
+msgid "closing band: button"
+msgstr "الشريط الختامي: الزر"
+
+msgid "closing band: button link"
+msgstr "الشريط الختامي: رابط الزر"
+
+msgid "closing band: heading"
+msgstr "الشريط الختامي: العنوان"
+
+msgid "closing band: text"
+msgstr "الشريط الختامي: النص"
+
+msgid "column"
+msgstr "عمود"
+
+msgid "columns"
+msgstr "الأعمدة"
+
+msgid "company"
+msgstr "الشركة"
+
+msgid "comparison table"
+msgstr "جدول مقارنة"
+
+msgid "comparison tables"
+msgstr "جداول المقارنة"
+
+msgid "comparison: heading"
+msgstr "المقارنة: العنوان"
+
+msgid "comparison: label"
+msgstr "المقارنة: التسمية"
+
+msgid "contact section: WhatsApp button"
+msgstr "قسم التواصل: زر واتساب"
+
+msgid "contact section: heading"
+msgstr "قسم التواصل: العنوان"
+
+msgid "contact section: text"
+msgstr "قسم التواصل: النص"
+
+msgid "content block"
+msgstr "قسم محتوى"
+
+msgid "content blocks"
+msgstr "أقسام المحتوى"
+
+msgid "copyright year"
+msgstr "سنة حقوق النشر"
+
+msgid "created"
+msgstr "تاريخ الإنشاء"
+
+msgid "customers page strip position"
+msgstr "الترتيب في شريط صفحة العملاء"
+
+msgid "default meta description"
+msgstr "وصف الصفحات الافتراضي"
+
+msgid "default page title"
+msgstr "عنوان الصفحات الافتراضي"
+
+msgid "default social share image"
+msgstr "صورة المشاركة الافتراضية"
+
+msgid "description"
+msgstr "الوصف"
+
+msgid "device"
+msgstr "الجهاز"
+
+msgid "e-mail"
+msgstr "البريد الإلكتروني"
+
+msgid "e.g. + or %"
+msgstr "مثل + أو %"
+
+msgid "e.g. /#contact — the navbar's main button."
+msgstr "مثل ‎/#contact — الزر الرئيسي في شريط التنقل."
+
+msgid "e.g. 01, for steps and tiles."
+msgstr "مثل 01، للخطوات والبطاقات."
+
+msgid "e.g. https://wa.me/201558856988"
+msgstr "مثل https://wa.me/201558856988"
+
+msgid "enquiries"
+msgstr "الاستفسارات"
+
+msgid "enquiry"
+msgstr "استفسار"
+
+msgid "established"
+msgstr "سنة التأسيس"
+
+msgid "event"
+msgstr "فعالية"
+
+msgid "event (gallery source)"
+msgstr "الفعالية (مصدر المعرض)"
+
+msgid "events"
+msgstr "الفعاليات"
+
+msgid "events: button"
+msgstr "الفعاليات: الزر"
+
+msgid "events: button link"
+msgstr "الفعاليات: رابط الزر"
+
+msgid "events: heading"
+msgstr "الفعاليات: العنوان"
+
+msgid "events: label"
+msgstr "الفعاليات: التسمية"
+
+msgid "events: text"
+msgstr "الفعاليات: النص"
+
+msgid "favicon"
+msgstr "أيقونة الموقع"
+
+msgid "featured on the home page"
+msgstr "مميز في الصفحة الرئيسية"
+
+msgid "figure"
+msgstr "رقم"
+
+msgid "figures"
+msgstr "الأرقام"
+
+msgid "figures: accessible name"
+msgstr "الأرقام: الاسم الوصفي"
+
+msgid "figures: label"
+msgstr "الأرقام: التسمية"
+
+msgid "footer column"
+msgstr "عمود تذييل"
+
+msgid "footer columns"
+msgstr "أعمدة التذييل"
+
+msgid "footer text"
+msgstr "نص التذييل"
+
+msgid "header image"
+msgstr "صورة الترويسة"
+
+msgid "heading"
+msgstr "العنوان"
+
+msgid "hero slide"
+msgstr "شريحة واجهة"
+
+msgid "hero slides"
+msgstr "شرائح الواجهة"
+
+msgid "highlight"
+msgstr "إبراز"
+
+msgid "home page"
+msgstr "الصفحة الرئيسية"
+
+msgid "home page highlight position"
+msgstr "ترتيب الإبراز في الصفحة الرئيسية"
+
+msgid "how-to: heading"
+msgstr "خطوات العمل: العنوان"
+
+msgid "image"
+msgstr "الصورة"
+
+msgid "image for the Arabic site"
+msgstr "صورة للموقع العربي"
+
+msgid "in the home page logo strip"
+msgstr "ضمن شريط الشعارات في الرئيسية"
+
+msgid "internal name"
+msgstr "الاسم الداخلي"
+
+msgid "internal notes"
+msgstr "ملاحظات داخلية"
+
+msgid "introduction"
+msgstr "المقدمة"
+
+msgid "item"
+msgstr "عنصر"
+
+msgid "items"
+msgstr "العناصر"
+
+msgid "items (cards, list entries, steps, tiles)"
+msgstr "العناصر (بطاقات، عناصر قائمة، خطوات، بطاقات صور)"
+
+msgid "key"
+msgstr "المفتاح"
+
+msgid "label"
+msgstr "التسمية"
+
+msgid "label above the title"
+msgstr "التسمية فوق العنوان"
+
+msgid "landing page"
+msgstr "صفحة الدخول"
+
+msgid "language"
+msgstr "اللغة"
+
+msgid "last activity"
+msgstr "آخر نشاط"
+
+msgid "link"
+msgstr "الرابط"
+
+msgid "link in this group"
+msgstr "رابط في هذه المجموعة"
+
+msgid "links in this group"
+msgstr "الروابط في هذه المجموعة"
+
+msgid "location"
+msgstr "الموقع"
+
+msgid "logo"
+msgstr "الشعار"
+
+msgid "logo for dark backgrounds"
+msgstr "شعار للخلفيات الداكنة"
+
+msgid "logo for light backgrounds"
+msgstr "شعار للخلفيات الفاتحة"
+
+msgid "map pin latitude"
+msgstr "خط عرض العلامة على الخريطة"
+
+msgid "map pin longitude"
+msgstr "خط طول العلامة على الخريطة"
+
+msgid "message"
+msgstr "الرسالة"
+
+msgid "meta description"
+msgstr "وصف الصفحة"
+
+msgid "navigation"
+msgstr "القائمة"
+
+msgid "navigation groups"
+msgstr "مجموعات القائمة"
+
+msgid "navigation item"
+msgstr "عنصر قائمة"
+
+msgid "number"
+msgstr "الرقم"
+
+msgid "opened at"
+msgstr "وقت الفتح"
+
+msgid "operating system"
+msgstr "نظام التشغيل"
+
+msgid "order"
+msgstr "الترتيب"
+
+msgid "page"
+msgstr "صفحة"
+
+msgid "page title"
+msgstr "عنوان الصفحة"
+
+msgid "page view"
+msgstr "مشاهدة صفحة"
+
+msgid "page views"
+msgstr "مشاهدات الصفحات"
+
+msgid "pages"
+msgstr "صفحات"
+
+msgid "parent group"
+msgstr "المجموعة الأب"
+
+msgid "partner"
+msgstr "شريك"
+
+msgid "partner category"
+msgstr "فئة الشركاء"
+
+msgid "partners"
+msgstr "الشركاء"
+
+msgid "phone"
+msgstr "الهاتف"
+
+msgid "phone (as displayed)"
+msgstr "الهاتف (كما يُعرض)"
+
+msgid "phone (for dialling)"
+msgstr "الهاتف (للاتصال)"
+
+msgid "photo"
+msgstr "صورة"
+
+msgid "photo or logo"
+msgstr "صورة أو شعار"
+
+msgid "photos"
+msgstr "الصور"
+
+msgid "placeholder"
+msgstr "مؤقت"
+
+msgid "platform"
+msgstr "المنصة"
+
+msgid "poster (landscape)"
+msgstr "صورة الغلاف (أفقية)"
+
+msgid "poster (portrait)"
+msgstr "صورة الغلاف (رأسية)"
+
+msgid "prefix"
+msgstr "البادئة"
+
+msgid "primary button label"
+msgstr "نص الزر الرئيسي"
+
+msgid "primary button link"
+msgstr "رابط الزر الرئيسي"
+
+msgid "profile URL"
+msgstr "رابط الحساب"
+
+msgid "published"
+msgstr "منشور"
+
+msgid "quote"
+msgstr "الاقتباس"
+
+msgid "region"
+msgstr "المنطقة"
+
+msgid "regions"
+msgstr "المناطق"
+
+msgid "rights text"
+msgstr "نص الحقوق"
+
+msgid "row"
+msgstr "صف"
+
+msgid "rows"
+msgstr "الصفوف"
+
+msgid "sales e-mail"
+msgstr "بريد المبيعات"
+
+msgid "section"
+msgstr "القسم"
+
+msgid "section item"
+msgstr "عنصر قسم"
+
+msgid "section items"
+msgstr "عناصر الأقسام"
+
+msgid "sector"
+msgstr "القطاع"
+
+msgid "sectors"
+msgstr "القطاعات"
+
+msgid "send enquiries to"
+msgstr "إرسال الاستفسارات إلى"
+
+msgid "sent from page"
+msgstr "أُرسل من صفحة"
+
+msgid "services: heading"
+msgstr "الخدمات: العنوان"
+
+msgid "services: image"
+msgstr "الخدمات: الصورة"
+
+msgid "services: image description"
+msgstr "الخدمات: وصف الصورة"
+
+msgid "services: label"
+msgstr "الخدمات: التسمية"
+
+msgid "services: text"
+msgstr "الخدمات: النص"
+
+msgid "short name"
+msgstr "الاسم المختصر"
+
+msgid "site name"
+msgstr "اسم الموقع"
+
+msgid "site settings"
+msgstr "إعدادات الموقع"
+
+msgid "slug"
+msgstr "المعرّف في الرابط"
+
+msgid "social link"
+msgstr "رابط تواصل"
+
+msgid "social links"
+msgstr "روابط التواصل"
+
+msgid "started"
+msgstr "بدأت"
+
+msgid "status"
+msgstr "الحالة"
+
+msgid "step"
+msgstr "الخطوة"
+
+msgid "story"
+msgstr "القصة"
+
+msgid "suffix"
+msgstr "اللاحقة"
+
+msgid "template"
+msgstr "القالب"
+
+msgid "testimonial"
+msgstr "رأي عميل"
+
+msgid "testimonials"
+msgstr "آراء العملاء"
+
+msgid "text"
+msgstr "النص"
+
+msgid "text value"
+msgstr "قيمة نصية"
+
+msgid "tick"
+msgstr "علامة صح"
+
+msgid "time on page (ms)"
+msgstr "المدة على الصفحة (مللي ثانية)"
+
+msgid "type"
+msgstr "النوع"
+
+msgid "updated"
+msgstr "آخر تحديث"
+
+msgid "verification link"
+msgstr "رابط التحقق"
+
+msgid "video (MP4)"
+msgstr "فيديو (MP4)"
+
+msgid "video (WebM)"
+msgstr "فيديو (WebM)"
+
+msgid "video (landscape)"
+msgstr "فيديو (أفقي)"
+
+msgid "video (portrait)"
+msgstr "فيديو (رأسي)"
+
+msgid "view"
+msgstr "مشاهدة"
+
+msgid "visible"
+msgstr "ظاهر"
+
+msgid "visit"
+msgstr "زيارة"
+
+msgid "visitor"
+msgstr "الزائر"
+
+msgid "visits"
+msgstr "الزيارات"
+
+msgid "website"
+msgstr "الموقع الإلكتروني"
+
+msgid "year"
+msgstr "السنة"
+
+msgid "“discover more” button"
+msgstr "زر «اكتشف المزيد»"
+
+msgid "Type"
+msgstr "النوع"
+
+msgid "Views"
+msgstr "المشاهدات"
+
+msgid "title"
+msgstr "العنوان"

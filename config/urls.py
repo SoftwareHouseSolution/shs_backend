@@ -39,6 +39,8 @@ admin.site.site_title = "SWH CMS"
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    # set_language — the admin's language switcher posts here.
+    path("i18n/", include("django.conf.urls.i18n")),
     path("api/v1/", include((api_v1, "api-v1"))),
     # Anything else under /api/ is a 404 in the envelope, never Django's HTML page.
     re_path(r"^api/", ApiNotFoundView.as_view()),
