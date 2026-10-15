@@ -1,0 +1,23 @@
+<!-- HP roundel, authored as vector geometry.
+
+     Replaces hp.webp, which was not a logo file at all: it was reconstructed pixel-by-pixel
+     by tools/make-assets.mjs out of a faint outline crop from the company-profile PDF. That
+     pipeline flood-filled the letterforms, so it shipped ragged stroke edges and a fill that
+     leaked past the rim at the bottom left. It was also not idempotent — it wrote back over
+     its own input, so a second run would have flattened the mark to a white disc.
+
+     Vector, not raster, because the mark is flat colour and two letterforms: it renders
+     crisp at the 76px the partner wall uses and at any size a retina screen asks for, in
+     under a kilobyte. The letters are drawn upright and sheared 14deg for the italic, which
+     is why the paths have no diagonals in them.
+
+     Still a repair, not a licensed asset. If HP's real logo file turns up, drop it in. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="HP">
+  <circle cx="160" cy="160" r="160" fill="#0096D6"/>
+  <g transform="translate(76.716 70.327) scale(0.614) skewX(-14)" fill="#fff" fill-rule="evenodd">
+    <!-- h — one closed contour; the counter is open at the baseline, so no hole is cut. -->
+    <path d="M0,0 L44,0 L44,128 C44,102 72,86 104,86 C138,86 160,104 160,136 L160,214 L116,214 L116,140 C116,124 100,122 88,132 C74,144 44,166 44,190 L44,214 L0,214 Z"/>
+    <!-- p — outer contour plus an enclosed counter, cut by the group's evenodd rule. -->
+    <path transform="translate(180 0)" d="M0,86 L56,86 C126,86 164,108 164,150 C164,192 126,214 56,214 L44,214 L44,292 L0,292 Z M44,122 C114,122 126,134 126,150 C126,166 114,178 44,178 Z"/>
+  </g>
+</svg>
