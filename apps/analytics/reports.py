@@ -71,6 +71,78 @@ def flow(session: VisitSession, titles: dict[str, str]) -> list[Step]:
     ]
 
 
+@dataclass(frozen=True)
+class JourneyStop:
+    """Consecutive views of one page merged: Home → Home → Home reads as one stop, ×3."""
+
+    label: str
+    path: str
+    entered_at: datetime
+    views: int
+    duration: str
+    duration_ms: int
+    pct: int  # of the longest stop, for the bar
+
+
+@dataclass(frozen=True)
+class PageShare:
+    label: str
+    views: int
+    duration: str
+    pct: int  # of the visit's total time
+
+
+@dataclass(frozen=True)
+class VisitReport:
+    total: str
+    page_views: int
+    unique_pages: int
+    avg_per_page: str
+    entry: str
+    exit: str
+    journey: list[JourneyStop]
+    pages: list[PageShare]
+
+
+def visit_report(session: VisitSession, titles: dict[str, str]) -> VisitReport:
+    """Everything the visit's admin page shows, from the session's prefetched views."""
+    views = sorted(session.views.all(), key=lambda v: (v.sequence, v.entered_at))
+    total_ms = sum(v.duration_ms for v in views)
+
+    merged: list[list] = []  # [label, path, entered_at, views, ms]
+    per_page: dict[str, list[int]] = {}  # label → [views, ms]
+    for v in views:
+        label = label_for(v.path, titles)
+        if merged and merged[-1][0] == label:
+            merged[-1][3] += 1
+            merged[-1][4] += v.duration_ms
+        else:
+            merged.append([label, v.path, v.entered_at, 1, v.duration_ms])
+        views_ms = per_page.setdefault(label, [0, 0])
+        views_ms[0] += 1
+        views_ms[1] += v.duration_ms
+
+    longest = max((m[4] for m in merged), default=0)
+    journey = [
+        JourneyStop(label, path, at, n, format_duration(ms), ms, round(100 * ms / longest) if longest else 0)
+        for label, path, at, n, ms in merged
+    ]
+    pages = [
+        PageShare(label, n, format_duration(ms), round(100 * ms / total_ms) if total_ms else 0)
+        for label, (n, ms) in sorted(per_page.items(), key=lambda kv: kv[1][1], reverse=True)
+    ]
+    return VisitReport(
+        total=format_duration(total_ms),
+        page_views=len(views),
+        unique_pages=len(per_page),
+        avg_per_page=format_duration(total_ms / len(views) if views else 0),
+        entry=journey[0].label if journey else "—",
+        exit=journey[-1].label if journey else "—",
+        journey=journey,
+        pages=pages,
+    )
+
+
 def flow_text(session: VisitSession, titles: dict[str, str]) -> str:
     return f" {flow_arrow()} ".join(f"{s.label} {s.duration}" for s in flow(session, titles))
 

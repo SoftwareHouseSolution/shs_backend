@@ -204,6 +204,29 @@ def test_admin_dashboard_and_visit_pages_show_the_flow(admin_client):
     assert admin_client.get(reverse("admin:analytics_pageview_changelist")).status_code == 200
 
 
+def test_visit_report_groups_repeats_and_splits_time_by_page():
+    session = _visit([("/en", 2000), ("/en", 3000), ("/en/customers", 15000), ("/en", 5000)])
+    report = reports.visit_report(session, reports.page_titles())
+
+    assert [(s.label, s.views, s.duration) for s in report.journey] == [
+        ("Home", 2, "5s"),
+        ("Our Clients", 1, "15s"),
+        ("Home", 1, "5s"),
+    ]
+    assert [(p.label, p.views, p.pct) for p in report.pages] == [("Our Clients", 1, 60), ("Home", 3, 40)]
+    assert (report.page_views, report.unique_pages, report.entry, report.exit) == (4, 2, "Home", "Home")
+    assert report.total == "25s" and report.avg_per_page == "6s"
+
+
+def test_visit_page_lists_the_visitors_other_visits(admin_client):
+    visitor = uuid.uuid4()
+    first = _visit([("/en", 1000)], days_ago=1, visitor=visitor)
+    second = _visit([("/en/customers", 2000)], visitor=visitor)
+    body = admin_client.get(reverse("admin:analytics_visitsession_change", args=[second.pk])).content.decode()
+    assert "Returning visitor" in body and "Other visits by this visitor" in body
+    assert reverse("admin:analytics_visitsession_change", args=[first.pk]) in body
+
+
 def test_analytics_admin_is_read_only(admin_client):
     assert admin_client.get(reverse("admin:analytics_visitsession_add")).status_code == 403
 

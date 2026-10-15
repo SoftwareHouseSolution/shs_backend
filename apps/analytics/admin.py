@@ -1,8 +1,6 @@
 """Read-only views of visitor analytics. Records are written only by the site itself."""
 
 from django.contrib import admin
-from django.utils import timezone
-from django.utils.formats import date_format
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
 from unfold.decorators import display
@@ -21,16 +19,17 @@ class _ReadOnly:
         return False
 
 
-def _flow_html(session, titles, *, limit: int | None = None):
-    steps = reports.flow(session, titles)
-    shown = steps[:limit] if limit else steps
+def _flow_html(session, titles, *, limit: int):
+    """The visit's path as chips, back-to-back repeats merged (Home ×3), cut after `limit`."""
+    stops = reports.visit_report(session, titles).journey
+    shown = stops[:limit]
     chips = format_html_join(
-        format_html('<span class="text-base-400"> {} </span>', reports.flow_arrow()),
-        '<span class="whitespace-nowrap" title="{}"><b>{}</b> <span class="text-base-500">{}</span></span>',
-        ((s.path, s.label, s.duration) for s in shown),
+        format_html('<span class="swh-flow__arrow">{}</span>', reports.flow_arrow()),
+        '<span class="swh-flow__step" title="{}">{}{} <small>{}</small></span>',
+        ((s.path, s.label, f" ×{s.views}" if s.views > 1 else "", s.duration) for s in shown),
     )
-    more = format_html(' <span class="text-base-400">+{}</span>', len(steps) - len(shown)) if len(steps) > len(shown) else ""
-    return format_html("{}{}", chips, more)
+    more = format_html('<span class="swh-flow__more">+{}</span>', len(stops) - len(shown)) if len(stops) > len(shown) else ""
+    return format_html('<span class="swh-flow">{}{}</span>', chips, more)
 
 
 @admin.register(VisitSession)
@@ -40,15 +39,30 @@ class VisitSessionAdmin(_ReadOnly, PlainAdmin):
     search_fields = ["landing_path", "referrer_host", "views__path"]
     date_hierarchy = "started_at"
     list_per_page = 50
-    fieldsets = [
-        (_("Visit"), {"fields": ["started_at", "last_seen_at", "time_on_site", "pages", "full_flow"]}),
-        (_("Path through the site"), {"fields": ["timeline"]}),
-        (_("Visitor"), {"fields": ["visitor_id", "session_id", "returning", "language", "device", "browser", "os", "referrer_host", "landing_path"]}),
-    ]
-    readonly_fields = [
-        "started_at", "last_seen_at", "time_on_site", "pages", "full_flow", "timeline", "visitor_id", "session_id",
-        "returning", "language", "device", "browser", "os", "referrer_host", "landing_path",
-    ]
+    # The visit's page is a report, not a form: see templates/admin/analytics/visitsession/.
+    change_form_template = "admin/analytics/visitsession/change_form.html"
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        visit = self.get_object(request, object_id)
+        if visit is not None:
+            other = (
+                reports.sessions_with_totals()
+                .filter(visitor_id=visit.visitor_id)
+                .exclude(pk=visit.pk)
+                .order_by("-started_at")
+            )
+            extra_context = {
+                **(extra_context or {}),
+                "visit": visit,
+                "report": reports.visit_report(visit, self._titles),
+                "returning": self.returning(visit),
+                "other_visits": [
+                    {"visit": v, "total": reports.format_duration(v.total_ms)} for v in other[:6]
+                ],
+                "other_visit_count": other.count(),
+                "flow_arrow": reports.flow_arrow(),
+            }
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def get_queryset(self, request):
         self._titles = reports.page_titles()
@@ -68,37 +82,10 @@ class VisitSessionAdmin(_ReadOnly, PlainAdmin):
 
     @display(description=_("Flow"))
     def flow(self, obj):
-        return _flow_html(obj, self._titles, limit=6)
-
-    @display(description=_("Flow"))
-    def full_flow(self, obj):
-        return _flow_html(obj, self._titles)
-
-    @display(description=_("Steps"))
-    def timeline(self, obj):
-        rows = format_html_join(
-            "",
-            '<tr class="border-t border-base-200 dark:border-base-800">'
-            '<td style="padding:8px 28px 8px 0">{}</td><td style="padding:8px 28px 8px 0" class="font-medium">{}</td>'
-            '<td style="padding:8px 28px 8px 0" class="text-base-500">{}</td><td style="padding:8px 28px 8px 0">{}</td><td style="padding:8px 28px 8px 0">{}</td></tr>',
-            (
-                (n, step.label, step.path, date_format(timezone.localtime(view.entered_at), "H:i:s"), step.duration)
-                for n, (step, view) in enumerate(
-                    zip(reports.flow(obj, self._titles), sorted(obj.views.all(), key=lambda v: (v.sequence, v.entered_at)), strict=True),
-                    start=1,
-                )
-            ),
-        )
-        head = format_html(
-            '<thead><tr class="text-subtle"><th style="padding:0 28px 8px 0" class="text-start font-normal">#</th>'
-            '<th style="padding:0 28px 8px 0" class="text-start font-normal">{}</th><th style="padding:0 28px 8px 0" class="text-start font-normal">{}</th>'
-            '<th style="padding:0 28px 8px 0" class="text-start font-normal">{}</th><th style="padding:0 28px 8px 0" class="text-start font-normal">{}</th></tr></thead>',
-            _("Page"), _("Address"), _("Opened at"), _("Time on page"),
-        )
-        return format_html('<table class="text-sm">{}<tbody>{}</tbody></table>', head, rows)
+        return _flow_html(obj, self._titles, limit=5)
 
     @display(description=_("Returning visitor"), boolean=True)
-    def returning(self, obj):
+    def returning(self, obj) -> bool:
         return VisitSession.objects.filter(visitor_id=obj.visitor_id, started_at__lt=obj.started_at).exists()
 
 

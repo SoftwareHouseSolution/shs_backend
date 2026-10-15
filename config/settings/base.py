@@ -282,15 +282,46 @@ UNFOLD = {
     "SITE_HEADER": "Software House Solutions",
     "SITE_SUBHEADER": _("Website content"),
     "SITE_URL": FRONTEND_URL,
-    "SITE_SYMBOL": "edit_note",
+    # The site's logo: ink on the light theme, white on the dark one.
+    "SITE_ICON": {
+        "light": lambda request: static("core/brand/swh-logo-ink.png"),
+        "dark": lambda request: static("core/brand/swh-logo.png"),
+    },
+    "SITE_FAVICONS": [
+        {"rel": "icon", "type": "image/png", "href": lambda request: static("core/brand/swh-logo-ink.png")},
+    ],
+    # Opened from the logo at the top of the sidebar.
+    "SITE_DROPDOWN": [
+        {"title": _("View website"), "icon": "open_in_new", "link": FRONTEND_URL, "attrs": {"target": "_blank"}},
+        {"title": _("API documentation"), "icon": "api", "link": reverse_lazy("api-v1:docs"), "attrs": {"target": "_blank"}},
+    ],
     "SHOW_HISTORY": True,
+    "SHOW_BACK_BUTTON": True,
     # Language switcher in the user menu (posts to /i18n/setlang/).
     "SHOW_LANGUAGES": True,
     "SHOW_VIEW_ON_SITE": True,
+    "BORDER_RADIUS": "8px",
     "ENVIRONMENT": "apps.core.admin_utils.environment_callback",
     "DASHBOARD_CALLBACK": "apps.core.admin_utils.dashboard_callback",
     "STYLES": [lambda request: static("core/admin.css")],
+    "LOGIN": {"image": lambda request: static("core/brand/login-panel.svg")},
+    # Ctrl+K also finds records, not only admin pages.
+    "COMMAND": {"search_models": True, "show_history": True},
     "COLORS": {
+        # Neutrals: a cool slate that sits with the brand blue.
+        "base": {
+            "50": "#f8fafc",
+            "100": "#f1f5f9",
+            "200": "#e2e8f0",
+            "300": "#cbd5e1",
+            "400": "#94a3b8",
+            "500": "#64748b",
+            "600": "#475569",
+            "700": "#334155",
+            "800": "#1e293b",
+            "900": "#0f172a",
+            "950": "#020617",
+        },
         # The site's accent (#4A6FA6) as the admin's primary scale.
         "primary": {
             "50": "#eff4fa",

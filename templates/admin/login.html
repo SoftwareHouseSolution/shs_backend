@@ -1,0 +1,15 @@
+{% extends "admin/login.html" %}
+{% load i18n static %}
+
+{# Unfold's login, with the SWH logo above the form. #}
+{% block content %}
+    <div class="swh-login-brand">
+        <img class="swh-logo--light" src="{% static 'core/brand/swh-logo-ink.png' %}" alt="">
+        <img class="swh-logo--dark" src="{% static 'core/brand/swh-logo.png' %}" alt="">
+        <div>
+            <strong>{{ site_header }}</strong>
+            <span>{% trans "Website content" %}</span>
+        </div>
+    </div>
+    {{ block.super }}
+{% endblock %}

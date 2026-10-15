@@ -189,6 +189,30 @@ def environment_callback(request):
     return [_("Production"), "success"]
 
 
+def _greeting() -> str:
+    from django.utils import timezone
+
+    hour = timezone.localtime().hour
+    if hour < 12:
+        return _("Good morning")
+    if hour < 18:
+        return _("Good afternoon")
+    return _("Good evening")
+
+
+def _content_kpi(model, *, title, icon, link) -> dict:
+    """A content card: how many records are live, and how many are hidden as drafts."""
+    counts = model.objects.aggregate(total=Count("id"), live=Count("id", filter=models.Q(is_published=True)))
+    hidden = counts["total"] - counts["live"]
+    return {
+        "title": title,
+        "icon": icon,
+        "value": counts["live"],
+        "note": _("%(n)d hidden") % {"n": hidden} if hidden else _("All published"),
+        "link": link,
+    }
+
+
 def dashboard_callback(request, context):
     """Counts and gaps an editor wants on landing: what is live, what is hidden, which
     records still need Arabic, and how many enquiries are waiting."""
@@ -198,26 +222,70 @@ def dashboard_callback(request, context):
     from apps.home.models import HeroSlide
     from apps.pages.models import Page, PageBlock
 
-    pages = Page.objects.all()
-    untranslated = [
-        p for p in pages.prefetch_related("blocks") if missing_arabic(p) or any(missing_arabic(b) for b in p.blocks.all())
-    ]
+    pages = list(Page.objects.prefetch_related("blocks"))
+    untranslated = [p for p in pages if missing_arabic(p) or any(missing_arabic(b) for b in p.blocks.all())]
+    translated_pct = round(100 * (len(pages) - len(untranslated)) / len(pages)) if pages else 100
+
+    enquiries_url = reverse("admin:enquiries_enquiry_changelist")
     by_status = dict(Enquiry.objects.values_list("status").annotate(n=Count("id")))
+    enquiry_total = sum(by_status.values())
+    tones = {Enquiry.Status.NEW: "danger", Enquiry.Status.IN_PROGRESS: "warning", Enquiry.Status.CLOSED: "success"}
+    pipeline = [
+        {
+            "label": status.label,
+            "count": by_status.get(status.value, 0),
+            "pct": round(100 * by_status.get(status.value, 0) / enquiry_total) if enquiry_total else 0,
+            "tone": tones[status],
+            "link": f"{enquiries_url}?status__exact={status.value}",
+        }
+        for status in Enquiry.Status
+    ]
+    user = request.user
     context.update(
         {
+            "greeting": _greeting(),
+            "display_name": user.get_short_name() or user.get_username(),
+            "quick_actions": [
+                {"title": _("New page"), "icon": "add", "link": reverse("admin:pages_page_add"), "primary": True},
+                {"title": _("Enquiries"), "icon": "inbox", "link": enquiries_url},
+                {"title": _("Site settings"), "icon": "tune", "link": reverse("admin:site_config_sitesettings_changelist")},
+                {"title": _("View website"), "icon": "open_in_new", "link": settings.FRONTEND_URL, "external": True},
+            ],
             "kpis": [
-                {"title": _("Published pages"), "value": pages.filter(is_published=True).count(), "link": reverse("admin:pages_page_changelist")},
-                {"title": _("Hero slides"), "value": HeroSlide.objects.filter(is_published=True).count(), "link": reverse("admin:home_homepage_changelist")},
-                {"title": _("Clients"), "value": Client.objects.filter(is_published=True).count(), "link": reverse("admin:clients_client_changelist")},
-                {"title": _("Events"), "value": Event.objects.filter(is_published=True).count(), "link": reverse("admin:events_event_changelist")},
-                {"title": _("New enquiries"), "value": by_status.get("new", 0), "link": reverse("admin:enquiries_enquiry_changelist") + "?status__exact=new"},
+                {**_content_kpi(Page, title=_("Published pages"), icon="description", link=reverse("admin:pages_page_changelist")),
+                 "tone": "primary"},
+                {**_content_kpi(HeroSlide, title=_("Hero slides"), icon="view_carousel", link=reverse("admin:home_homepage_changelist")),
+                 "tone": "violet"},
+                {**_content_kpi(Client, title=_("Clients"), icon="storefront", link=reverse("admin:clients_client_changelist")),
+                 "tone": "teal"},
+                {**_content_kpi(Event, title=_("Events"), icon="event", link=reverse("admin:events_event_changelist")),
+                 "tone": "amber"},
+                {
+                    "title": _("New enquiries"),
+                    "icon": "mark_email_unread",
+                    "value": by_status.get(Enquiry.Status.NEW, 0),
+                    "note": _("Waiting for a reply") if by_status.get(Enquiry.Status.NEW) else _("Inbox is clear"),
+                    "link": f"{enquiries_url}?status__exact={Enquiry.Status.NEW.value}",
+                    "tone": "danger" if by_status.get(Enquiry.Status.NEW) else "success",
+                },
+            ],
+            "pipeline": pipeline,
+            "enquiry_total": enquiry_total,
+            "latest_enquiries": [
+                {"enquiry": e, "url": reverse("admin:enquiries_enquiry_change", args=[e.pk]), "tone": tones.get(e.status, "neutral")}
+                for e in Enquiry.objects.order_by("-created_at")[:5]
             ],
             "untranslated_pages": untranslated,
+            "page_count": len(pages),
+            "translated_pct": translated_pct,
             "content_blocks": PageBlock.objects.count(),
             **_visitor_context(),
         }
     )
     return context
+
+# A long visit's path is cut here on the dashboard; the visit's own page shows all of it.
+RECENT_VISIT_STEPS = 8
 
 
 def _visitor_context() -> dict:
@@ -229,36 +297,65 @@ def _visitor_context() -> dict:
     from django.utils import timezone
 
     from apps.analytics import reports
+    from apps.analytics.models import VisitSession
 
     since = timezone.now() - timedelta(days=7)
     stats = reports.summary(since)
     labels, values = reports.daily_visits(14)
     titles = reports.page_titles()
+    top = reports.top_pages(since)
+    top_max = max((p.views for p in top), default=0)
+
+    def shares(counts: dict[str, int], labels: dict[str, str], icons: dict[str, str]) -> list[dict]:
+        total = sum(counts.values())
+        return [
+            {"label": labels.get(key, key), "icon": icons.get(key, ""), "count": n, "pct": round(100 * n / total) if total else 0}
+            for key, n in sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+        ]
+
+    device_icons = {"desktop": "computer", "tablet": "tablet_mac", "mobile": "smartphone"}
     return {
         "visitor_kpis": [
-            {"title": _("Visitors (7 days)"), "value": stats.visitors},
-            {"title": _("Visits"), "value": stats.visits},
-            {"title": _("Page views"), "value": stats.page_views},
-            {"title": _("Avg. time on site"), "value": stats.avg_visit},
-            {"title": _("Pages per visit"), "value": stats.pages_per_visit},
+            {"title": _("Visitors (7 days)"), "value": stats.visitors, "icon": "group"},
+            {"title": _("Visits"), "value": stats.visits, "icon": "login"},
+            {"title": _("Page views"), "value": stats.page_views, "icon": "visibility"},
+            {"title": _("Avg. time on site"), "value": stats.avg_visit, "icon": "schedule"},
+            {"title": _("Pages per visit"), "value": stats.pages_per_visit, "icon": "layers"},
         ],
         "visits_chart": json.dumps(
             {
                 "labels": labels,
-                "datasets": [{"label": str(_("Visits")), "data": values, "backgroundColor": "var(--color-primary-500)"}],
+                "datasets": [
+                    {
+                        "label": str(_("Visits")),
+                        "data": values,
+                        "backgroundColor": "var(--color-primary-500)",
+                        "hoverBackgroundColor": "var(--color-primary-600)",
+                        "borderRadius": 6,
+                        "maxBarThickness": 28,
+                    }
+                ],
             }
         ),
-        "top_pages": reports.top_pages(since),
+        "top_pages": [{"page": p, "pct": round(100 * p.views / top_max) if top_max else 0} for p in top],
+        "devices": shares(reports.devices(since), dict(VisitSession.Device.choices), device_icons),
+        "languages": shares(
+            reports.languages(since), {"en": _("English"), "ar": _("Arabic")}, {"en": "translate", "ar": "translate"}
+        ),
         "recent_visits": [
             {
                 "visit": v,
-                "steps": reports.flow(v, titles),
+                "steps": steps[:RECENT_VISIT_STEPS],
+                "more_steps": max(len(steps) - RECENT_VISIT_STEPS, 0),
                 "total": reports.format_duration(v.total_ms),
+                "device_icon": device_icons.get(v.device, "devices"),
                 "url": reverse("admin:analytics_visitsession_change", args=[v.pk]),
             }
-            for v in reports.recent_visits(8)
+            for v in reports.recent_visits(6)
+            for steps in [reports.flow(v, titles)]
         ],
     }
+
 
 
 __all__ = [

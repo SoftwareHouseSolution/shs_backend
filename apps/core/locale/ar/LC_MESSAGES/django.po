@@ -1489,3 +1489,148 @@ msgstr "المشاهدات"
 
 msgid "title"
 msgstr "العنوان"
+
+# ── Admin dashboard and theme ───────────────────────────────────────────────
+
+msgid "Good morning"
+msgstr "صباح الخير"
+
+msgid "Good afternoon"
+msgstr "مساء الخير"
+
+msgid "Good evening"
+msgstr "مساء الخير"
+
+msgid "Here is what is live on the website and what needs your attention."
+msgstr "إليك ما هو منشور على الموقع وما يحتاج إلى متابعتك."
+
+msgid "New page"
+msgstr "صفحة جديدة"
+
+msgid "View website"
+msgstr "عرض الموقع"
+
+msgid "API documentation"
+msgstr "توثيق الواجهة البرمجية"
+
+msgid "%(n)d hidden"
+msgstr "%(n)d مخفي"
+
+msgid "All published"
+msgstr "الكل منشور"
+
+msgid "Waiting for a reply"
+msgstr "بانتظار الرد"
+
+msgid "Inbox is clear"
+msgstr "لا رسائل جديدة"
+
+msgid "Open inbox"
+msgstr "فتح صندوق الوارد"
+
+msgid "Total received: %(n)s"
+msgstr "إجمالي المستلم: %(n)s"
+
+msgid "No enquiries yet. Messages from the contact form appear here."
+msgstr "لا توجد استفسارات بعد. تظهر هنا الرسائل الواردة من نموذج التواصل."
+
+msgid "Arabic coverage"
+msgstr "اكتمال الترجمة العربية"
+
+msgid "%(n)s pages · %(blocks)s content blocks"
+msgstr "%(n)s صفحة · %(blocks)s قسم محتوى"
+
+msgid "of pages fully translated"
+msgstr "من الصفحات مترجمة بالكامل"
+
+msgid "Every page has its Arabic version. Nothing to do here."
+msgstr "لكل صفحة نسختها العربية. لا شيء مطلوب هنا."
+
+msgid "Last 7 days"
+msgstr "آخر 7 أيام"
+
+msgid "Audience"
+msgstr "الجمهور"
+
+msgid "Device"
+msgstr "الجهاز"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "+%(n)s more"
+msgstr "+%(n)s أخرى"
+
+msgid "Your recent changes"
+msgstr "آخر تعديلاتك"
+
+# ── Visit report (admin) ────────────────────────────────────────────────────
+
+msgid "New visitor"
+msgstr "زائر جديد"
+
+msgid "Direct visit"
+msgstr "زيارة مباشرة"
+
+msgid "Different pages"
+msgstr "صفحات مختلفة"
+
+msgid "Avg. time per page"
+msgstr "متوسط الوقت لكل صفحة"
+
+msgid "Entry page"
+msgstr "صفحة الدخول"
+
+msgid "Exit page"
+msgstr "صفحة الخروج"
+
+msgid "Repeated views of the same page in a row are grouped."
+msgstr "تُجمع المشاهدات المتتالية للصفحة نفسها في خطوة واحدة."
+
+msgid "Show %(n)s more steps"
+msgstr "عرض %(n)s خطوة أخرى"
+
+msgid "Show fewer steps"
+msgstr "عرض خطوات أقل"
+
+msgid "No pages were recorded for this visit."
+msgstr "لم تُسجَّل أي صفحات لهذه الزيارة."
+
+msgid "Time by page"
+msgstr "الوقت حسب الصفحة"
+
+msgid "and %(n)s other pages"
+msgstr "و%(n)s صفحة أخرى"
+
+msgid "Details"
+msgstr "التفاصيل"
+
+msgid "Anonymous ids — no personal data is stored."
+msgstr "معرّفات مجهولة — لا تُخزَّن أي بيانات شخصية."
+
+msgid "Landing page"
+msgstr "صفحة الوصول"
+
+msgid "Came from"
+msgstr "قادم من"
+
+msgid "Started"
+msgstr "البداية"
+
+msgid "Last activity"
+msgstr "آخر نشاط"
+
+msgid "Session"
+msgstr "الجلسة"
+
+msgid "Other visits by this visitor"
+msgstr "زيارات أخرى لهذا الزائر"
+
+msgid "All %(n)s visits"
+msgstr "كل الزيارات (%(n)s)"
+
+msgid "This is the visitor's only visit so far."
+msgstr "هذه هي الزيارة الوحيدة لهذا الزائر حتى الآن."
+
+msgid "Views in a row"
+msgstr "مشاهدات متتالية"

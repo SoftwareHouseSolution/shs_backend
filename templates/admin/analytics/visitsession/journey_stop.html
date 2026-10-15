@@ -1,0 +1,13 @@
+{% load i18n %}
+{# One stop on a visit's path — included from change_form.html with stop, n and last. #}
+<li class="swh-timeline__item{% if last %} swh-timeline__item--last{% endif %}">
+    <span class="swh-timeline__n">{{ n }}</span>
+    <div class="swh-timeline__body">
+        <div class="swh-timeline__title">
+            {{ stop.label }}
+            {% if stop.views > 1 %}<span class="swh-pill swh-pill--neutral" title="{% trans 'Views in a row' %}">×{{ stop.views }}</span>{% endif %}
+        </div>
+        <div class="swh-timeline__meta"><span dir="ltr">{{ stop.path }}</span> · {{ stop.entered_at|date:"H:i:s" }}</div>
+    </div>
+    <div class="swh-timeline__time{% if stop.pct >= 50 %} swh-timeline__time--long{% endif %}">{{ stop.duration }}</div>
+</li>

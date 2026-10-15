@@ -1,5 +1,5 @@
 {% extends 'admin/base.html' %}
-{% load i18n unfold %}
+{% load i18n log unfold %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 
 {% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
@@ -9,83 +9,269 @@
 {% endblock %}
 
 {% block content %}
-    {# Dashboard: what is live, what needs Arabic, what is waiting — see apps.core.admin_utils.dashboard_callback #}
-    <div class="grid gap-4 mb-8 sm:grid-cols-2 lg:grid-cols-5">
-        {% for kpi in kpis %}
-            {% component "unfold/components/card.html" with href=kpi.link size="md" %}
-                <p class="text-subtle text-sm">{{ kpi.title }}</p>
-                <p class="font-semibold text-2xl text-important mt-1">{{ kpi.value }}</p>
-            {% endcomponent %}
-        {% endfor %}
-    </div>
+    {# Dashboard: what is live, what needs Arabic, what is waiting — see apps.core.admin_utils.dashboard_callback. #}
+    {# Styled by the swh-* classes in core/admin.css: Unfold ships a precompiled Tailwind build. #}
+    <div class="swh-dash">
 
-    {% if untranslated_pages %}
-        <div class="mb-8">
-            {% component "unfold/components/card.html" with title=_("Pages with missing Arabic") title_icon="translate" %}
-                <ul class="flex flex-col gap-2">
-                    {% for page in untranslated_pages %}
-                        <li><a class="text-primary-600 font-medium" href="{% url 'admin:pages_page_change' page.pk %}">{{ page.title }}</a> <span class="text-subtle">/{{ page.slug }}</span></li>
-                    {% endfor %}
-                </ul>
-            {% endcomponent %}
+        {# ── Welcome ─────────────────────────────────────────────────────────── #}
+        <section class="swh-hero">
+            <div class="swh-hero__text">
+                <p class="swh-hero__date">{% now "l, j F Y" %}</p>
+                <h1 class="swh-hero__title">{{ greeting }}, {{ display_name }}</h1>
+                <p class="swh-hero__lead">{% trans "Here is what is live on the website and what needs your attention." %}</p>
+            </div>
+            <div class="swh-hero__actions">
+                {% for a in quick_actions %}
+                    <a href="{{ a.link }}" class="swh-btn{% if a.primary %} swh-btn--primary{% endif %}"{% if a.external %} target="_blank" rel="noopener"{% endif %}>
+                        <span class="material-symbols-outlined">{{ a.icon }}</span>{{ a.title }}
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        {# ── Content at a glance ─────────────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--5">
+            {% for kpi in kpis %}
+                <a href="{{ kpi.link }}" class="swh-card swh-kpi swh-tone--{{ kpi.tone }}">
+                    <span class="swh-kpi__icon material-symbols-outlined">{{ kpi.icon }}</span>
+                    <span class="swh-kpi__label">{{ kpi.title }}</span>
+                    <span class="swh-kpi__value">{{ kpi.value }}</span>
+                    <span class="swh-kpi__note">{{ kpi.note }}</span>
+                </a>
+            {% endfor %}
         </div>
-    {% endif %}
 
-    {# ── Visitors: see apps.analytics ─────────────────────────────────────────── #}
-    <h2 class="font-semibold text-lg text-important mb-4">{% trans "Visitors" %}</h2>
-    <div class="grid gap-4 mb-6 sm:grid-cols-2 lg:grid-cols-5">
-        {% for kpi in visitor_kpis %}
-            {% component "unfold/components/card.html" with size="md" %}
-                <p class="text-subtle text-sm">{{ kpi.title }}</p>
-                <p class="font-semibold text-2xl text-important mt-1">{{ kpi.value }}</p>
-            {% endcomponent %}
-        {% endfor %}
-    </div>
+        <div class="swh-grid swh-grid--2-1">
+            {# ── Enquiries ───────────────────────────────────────────────────── #}
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">inbox</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Enquiries" %}</h2>
+                        <p class="swh-card__sub">{% blocktrans with n=enquiry_total %}Total received: {{ n }}{% endblocktrans %}</p>
+                    </div>
+                    <a class="swh-link swh-card__action" href="{% url 'admin:enquiries_enquiry_changelist' %}">{% trans "Open inbox" %} <span class="swh-arrow">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
+                </header>
 
-    <div class="grid gap-6 mb-6 lg:grid-cols-3">
-        <div class="lg:col-span-2">
-            {% component "unfold/components/card.html" with title=_("Visits per day (14 days)") title_icon="bar_chart" %}
-                {% component "unfold/components/chart/bar.html" with data=visits_chart height=260 %}{% endcomponent %}
-            {% endcomponent %}
-        </div>
-        {% component "unfold/components/card.html" with title=_("Top pages (7 days)") title_icon="leaderboard" %}
-            {% if top_pages %}
-                <table class="w-full text-sm">
-                    <thead><tr class="text-subtle"><th class="text-start font-normal pb-2">{% trans "Page" %}</th><th class="text-end font-normal pb-2">{% trans "Views" %}</th><th class="text-end font-normal pb-2">{% trans "Avg. time" %}</th></tr></thead>
-                    <tbody>
-                        {% for p in top_pages %}
-                            <tr class="border-t border-base-200 dark:border-base-800"><td class="py-2">{{ p.label }}</td><td class="py-2 text-end">{{ p.views }}</td><td class="py-2 text-end">{{ p.avg_time }}</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p class="text-subtle">{% trans "No visits recorded yet." %}</p>
-            {% endif %}
-        {% endcomponent %}
-    </div>
-
-    <div class="mb-8">
-        {% url "admin:analytics_visitsession_changelist" as all_visits %}
-        {% component "unfold/components/card.html" with title=_("Latest visits") title_icon="timeline" %}
-            {% if recent_visits %}
-                <ul class="flex flex-col">
-                    {% for r in recent_visits %}
-                        <li class="flex flex-col gap-1 py-3 {% if not forloop.first %}border-t border-base-200 dark:border-base-800{% endif %}">
-                            <a href="{{ r.url }}" class="text-sm text-subtle hover:text-primary-600">
-                                {{ r.visit.started_at|date:"d M, H:i" }} · {{ r.visit.get_device_display }} · {{ r.visit.language|upper }} · {{ r.visit.page_count }} {% trans "pages" %} · {{ r.total }}
+                <div class="swh-pipeline">
+                    <div class="swh-pipeline__bar">
+                        {% for s in pipeline %}{% if s.count %}<span class="swh-bg--{{ s.tone }}" style="flex-grow: {{ s.count }}" title="{{ s.label }}: {{ s.count }}"></span>{% endif %}{% endfor %}
+                    </div>
+                    <div class="swh-pipeline__legend">
+                        {% for s in pipeline %}
+                            <a href="{{ s.link }}" class="swh-stat">
+                                <span class="swh-dot swh-bg--{{ s.tone }}"></span>
+                                <span class="swh-stat__label">{{ s.label }}</span>
+                                <span class="swh-stat__value">{{ s.count }}</span>
+                                <span class="swh-stat__pct">{{ s.pct }}%</span>
                             </a>
-                            <p class="text-sm leading-6">
-                                {% for s in r.steps %}<span class="whitespace-nowrap" title="{{ s.path }}"><b>{{ s.label }}</b> <span class="text-base-500">{{ s.duration }}</span></span>{% if not forloop.last %}<span class="text-base-400"> {% if LANGUAGE_BIDI %}←{% else %}→{% endif %} </span>{% endif %}{% endfor %}
-                            </p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if latest_enquiries %}
+                    <ul class="swh-list">
+                        {% for row in latest_enquiries %}
+                            <li>
+                                <a href="{{ row.url }}" class="swh-list__row">
+                                    <span class="swh-avatar">{{ row.enquiry.full_name|slice:":1"|upper }}</span>
+                                    <span class="swh-list__main">
+                                        <span class="swh-list__title">{{ row.enquiry.full_name }}</span>
+                                        <span class="swh-list__meta">{% if row.enquiry.company %}{{ row.enquiry.company }} · {% endif %}{{ row.enquiry.email }}</span>
+                                    </span>
+                                    <span class="swh-pill swh-pill--{{ row.tone }}">{{ row.enquiry.get_status_display }}</span>
+                                    <span class="swh-list__time">{{ row.enquiry.created_at|date:"j M, H:i" }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">mark_email_read</span>{% trans "No enquiries yet. Messages from the contact form appear here." %}</p>
+                {% endif %}
+            </section>
+
+            {# ── Content health ──────────────────────────────────────────────── #}
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">translate</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Arabic coverage" %}</h2>
+                        <p class="swh-card__sub">{% blocktrans with n=page_count blocks=content_blocks %}{{ n }} pages · {{ blocks }} content blocks{% endblocktrans %}</p>
+                    </div>
+                </header>
+
+                <div class="swh-meter">
+                    <div class="swh-meter__top">
+                        <span class="swh-meter__value">{{ translated_pct }}%</span>
+                        <span class="swh-meter__label">{% trans "of pages fully translated" %}</span>
+                    </div>
+                    <div class="swh-track"><span class="{% if translated_pct == 100 %}swh-bg--success{% else %}swh-bg--warning{% endif %}" style="width: {{ translated_pct }}%"></span></div>
+                </div>
+
+                {% if untranslated_pages %}
+                    <p class="swh-section-label">{% trans "Pages with missing Arabic" %}</p>
+                    <ul class="swh-list swh-list--compact">
+                        {% for page in untranslated_pages %}
+                            <li>
+                                <a class="swh-list__row" href="{% url 'admin:pages_page_change' page.pk %}">
+                                    <span class="swh-dot swh-bg--warning"></span>
+                                    <span class="swh-list__main"><span class="swh-list__title">{{ page.title }}</span></span>
+                                    <span class="swh-list__meta" dir="ltr">/{{ page.slug }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-empty swh-empty--success"><span class="material-symbols-outlined">task_alt</span>{% trans "Every page has its Arabic version. Nothing to do here." %}</p>
+                {% endif %}
+            </section>
+        </div>
+
+        {# ── Visitors: see apps.analytics ────────────────────────────────────── #}
+        <div class="swh-heading">
+            <h2>{% trans "Visitors" %}</h2>
+            <span class="swh-pill swh-pill--neutral">{% trans "Last 7 days" %}</span>
+        </div>
+
+        <div class="swh-card swh-strip">
+            {% for kpi in visitor_kpis %}
+                <div class="swh-strip__item">
+                    <span class="swh-strip__label"><span class="material-symbols-outlined">{{ kpi.icon }}</span>{{ kpi.title }}</span>
+                    <span class="swh-strip__value">{{ kpi.value }}</span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="swh-grid swh-grid--2-1">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">bar_chart</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Visits per day (14 days)" %}</h2>
+                    </div>
+                </header>
+                {% component "unfold/components/chart/bar.html" with data=visits_chart height=250 %}{% endcomponent %}
+            </section>
+
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">devices</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Audience" %}</h2>
+                    </div>
+                </header>
+                {% if devices %}
+                    <p class="swh-section-label">{% trans "Device" %}</p>
+                    {% for d in devices %}
+                        <div class="swh-share">
+                            <span class="swh-share__label"><span class="material-symbols-outlined">{{ d.icon }}</span>{{ d.label }}</span>
+                            <span class="swh-share__value">{{ d.count }} <small>{{ d.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--primary" style="width: {{ d.pct }}%"></span></div>
+                        </div>
+                    {% endfor %}
+                    <p class="swh-section-label">{% trans "Language" %}</p>
+                    {% for l in languages %}
+                        <div class="swh-share">
+                            <span class="swh-share__label">{{ l.label }}</span>
+                            <span class="swh-share__value">{{ l.count }} <small>{{ l.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--teal" style="width: {{ l.pct }}%"></span></div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">query_stats</span>{% trans "No visits recorded yet." %}</p>
+                {% endif %}
+            </section>
+        </div>
+
+        <div class="swh-grid swh-grid--1-2">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">leaderboard</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Top pages (7 days)" %}</h2>
+                    </div>
+                </header>
+                {% if top_pages %}
+                    <table class="swh-table">
+                        <thead><tr><th>{% trans "Page" %}</th><th class="swh-num">{% trans "Views" %}</th><th class="swh-num">{% trans "Avg. time" %}</th></tr></thead>
+                        <tbody>
+                            {% for row in top_pages %}
+                                <tr>
+                                    <td>
+                                        <span class="swh-rank">{{ forloop.counter }}</span>{{ row.page.label }}
+                                        <span class="swh-track swh-track--thin"><span class="swh-bg--primary" style="width: {{ row.pct }}%"></span></span>
+                                    </td>
+                                    <td class="swh-num swh-strong">{{ row.page.views }}</td>
+                                    <td class="swh-num">{{ row.page.avg_time }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">query_stats</span>{% trans "No visits recorded yet." %}</p>
+                {% endif %}
+            </section>
+
+            {% url "admin:analytics_visitsession_changelist" as all_visits %}
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">timeline</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Latest visits" %}</h2>
+                    </div>
+                    <a class="swh-link swh-card__action" href="{{ all_visits }}">{% trans "All visits" %} <span class="swh-arrow">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
+                </header>
+                {% if recent_visits %}
+                    <ul class="swh-visits">
+                        {% for r in recent_visits %}
+                            <li>
+                                <a href="{{ r.url }}" class="swh-visits__meta">
+                                    <span class="material-symbols-outlined">{{ r.device_icon }}</span>
+                                    <span>{{ r.visit.started_at|date:"j M, H:i" }}</span>
+                                    <span class="swh-pill swh-pill--neutral">{{ r.visit.language|upper }}</span>
+                                    <span>{{ r.visit.page_count }} {% trans "pages" %}</span>
+                                    <span class="swh-visits__total">{{ r.total }}</span>
+                                </a>
+                                <p class="swh-flow">
+                                    {% for s in r.steps %}<span class="swh-flow__step" title="{{ s.path }}">{{ s.label }} <small>{{ s.duration }}</small></span>{% if not forloop.last %}<span class="swh-flow__arrow">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span>{% endif %}{% endfor %}
+                                    {% if r.more_steps %}<a class="swh-flow__more" href="{{ r.url }}">{% blocktrans with n=r.more_steps %}+{{ n }} more{% endblocktrans %}</a>{% endif %}
+                                </p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">timeline</span>{% trans "No visits recorded yet. They appear here as soon as someone browses the site." %}</p>
+                {% endif %}
+            </section>
+        </div>
+
+        {# ── Your recent changes (Django's admin log) ────────────────────────── #}
+        <section class="swh-card">
+            <header class="swh-card__head">
+                <span class="swh-card__icon material-symbols-outlined">history</span>
+                <div>
+                    <h2 class="swh-card__title">{% trans "Your recent changes" %}</h2>
+                </div>
+            </header>
+            {% get_admin_log 8 as admin_log for_user user %}
+            {% if admin_log %}
+                <ul class="swh-list swh-list--compact swh-list--cols">
+                    {% for entry in admin_log %}
+                        <li>
+                            <{% if entry.is_deletion or not entry.get_admin_url %}span{% else %}a href="{{ entry.get_admin_url }}"{% endif %} class="swh-list__row">
+                                <span class="swh-log swh-log--{% if entry.is_addition %}add{% elif entry.is_change %}change{% else %}delete{% endif %} material-symbols-outlined">{% if entry.is_addition %}add{% elif entry.is_change %}edit{% else %}delete{% endif %}</span>
+                                <span class="swh-list__main">
+                                    <span class="swh-list__title">{{ entry.object_repr }}</span>
+                                    <span class="swh-list__meta">{% if entry.content_type %}{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}{% else %}{% trans "Unknown content" %}{% endif %}</span>
+                                </span>
+                                <span class="swh-list__time">{{ entry.action_time|date:"j M, H:i" }}</span>
+                            </{% if entry.is_deletion or not entry.get_admin_url %}span{% else %}a{% endif %}>
                         </li>
                     {% endfor %}
                 </ul>
-                <a class="inline-block mt-3 text-primary-600 font-medium text-sm" href="{{ all_visits }}">{% trans "All visits" %} {% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</a>
             {% else %}
-                <p class="text-subtle">{% trans "No visits recorded yet. They appear here as soon as someone browses the site." %}</p>
+                <p class="swh-empty"><span class="material-symbols-outlined">history</span>{% trans "None available" %}</p>
             {% endif %}
-        {% endcomponent %}
+        </section>
     </div>
-
-    {% include "unfold/helpers/dashboard_default.html" %}
 {% endblock %}

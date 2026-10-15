@@ -1,0 +1,164 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{# One visit as a report — context from VisitSessionAdmin.change_view, styles in core/admin.css. #}
+{% block content %}
+    <div class="swh-dash">
+
+        {# ── Who and when ────────────────────────────────────────────────────── #}
+        <section class="swh-card swh-visit-head">
+            <span class="swh-visit-head__icon material-symbols-outlined">{% if visit.device == "mobile" %}smartphone{% elif visit.device == "tablet" %}tablet_mac{% else %}computer{% endif %}</span>
+            <div class="swh-visit-head__main">
+                <p class="swh-card__sub">{% trans "Visit" %} · <span dir="ltr">{{ visit.visitor_id|stringformat:"s"|slice:":8" }}</span></p>
+                <h1 class="swh-visit-head__title">{{ visit.started_at|date:"l, j F Y" }} <span>{{ visit.started_at|date:"H:i" }} – {{ visit.last_seen_at|date:"H:i" }}</span></h1>
+                <div class="swh-tags">
+                    {% if returning %}
+                        <span class="swh-pill swh-pill--success">{% trans "Returning visitor" %}</span>
+                    {% else %}
+                        <span class="swh-pill swh-pill--primary">{% trans "New visitor" %}</span>
+                    {% endif %}
+                    <span class="swh-tag"><span class="material-symbols-outlined">devices</span>{{ visit.get_device_display }}</span>
+                    {% if visit.browser %}<span class="swh-tag"><span class="material-symbols-outlined">public</span>{{ visit.browser }}{% if visit.os %} · {{ visit.os }}{% endif %}</span>{% endif %}
+                    {% if visit.language %}<span class="swh-tag"><span class="material-symbols-outlined">translate</span>{{ visit.language|upper }}</span>{% endif %}
+                    <span class="swh-tag"><span class="material-symbols-outlined">call_received</span>{% if visit.referrer_host %}<span dir="ltr">{{ visit.referrer_host }}</span>{% else %}{% trans "Direct visit" %}{% endif %}</span>
+                </div>
+            </div>
+        </section>
+
+        {# ── Numbers ─────────────────────────────────────────────────────────── #}
+        <div class="swh-card swh-strip swh-strip--6">
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">schedule</span>{% trans "Time on site" %}</span>
+                <span class="swh-strip__value">{{ report.total }}</span>
+            </div>
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">visibility</span>{% trans "Page views" %}</span>
+                <span class="swh-strip__value">{{ report.page_views }}</span>
+            </div>
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">description</span>{% trans "Different pages" %}</span>
+                <span class="swh-strip__value">{{ report.unique_pages }}</span>
+            </div>
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">timer</span>{% trans "Avg. time per page" %}</span>
+                <span class="swh-strip__value">{{ report.avg_per_page }}</span>
+            </div>
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">login</span>{% trans "Entry page" %}</span>
+                <span class="swh-strip__value swh-strip__value--text">{{ report.entry }}</span>
+            </div>
+            <div class="swh-strip__item">
+                <span class="swh-strip__label"><span class="material-symbols-outlined">logout</span>{% trans "Exit page" %}</span>
+                <span class="swh-strip__value swh-strip__value--text">{{ report.exit }}</span>
+            </div>
+        </div>
+
+        <div class="swh-grid swh-grid--2-1 swh-grid--top">
+            {# ── The path, step by step ──────────────────────────────────────── #}
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">route</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Path through the site" %}</h2>
+                        <p class="swh-card__sub">{% trans "Repeated views of the same page in a row are grouped." %}</p>
+                    </div>
+                </header>
+                {% if report.journey %}
+                    <ol class="swh-timeline">
+                        {% for stop in report.journey|slice:":12" %}
+                            {% include "admin/analytics/visitsession/journey_stop.html" with n=forloop.counter last=forloop.last %}
+                        {% endfor %}
+                    </ol>
+                    {% if report.journey|length > 12 %}
+                        <details class="swh-more">
+                            <summary>
+                                <span class="swh-more__closed">{% blocktrans with n=report.journey|length|add:"-12" %}Show {{ n }} more steps{% endblocktrans %}</span>
+                                <span class="swh-more__open">{% trans "Show fewer steps" %}</span>
+                            </summary>
+                            <ol class="swh-timeline" start="13">
+                                {% for stop in report.journey|slice:"12:" %}
+                                    {% include "admin/analytics/visitsession/journey_stop.html" with n=forloop.counter|add:12 last=forloop.last %}
+                                {% endfor %}
+                            </ol>
+                        </details>
+                    {% endif %}
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">route</span>{% trans "No pages were recorded for this visit." %}</p>
+                {% endif %}
+            </section>
+
+            <div class="swh-stack">
+                {# ── Where the time went ─────────────────────────────────────── #}
+                <section class="swh-card">
+                    <header class="swh-card__head">
+                        <span class="swh-card__icon material-symbols-outlined">donut_small</span>
+                        <div>
+                            <h2 class="swh-card__title">{% trans "Time by page" %}</h2>
+                        </div>
+                    </header>
+                    {% for p in report.pages|slice:":8" %}
+                        <div class="swh-share">
+                            <span class="swh-share__label">{{ p.label }}{% if p.views > 1 %} <span class="swh-muted">×{{ p.views }}</span>{% endif %}</span>
+                            <span class="swh-share__value">{{ p.duration }} <small>{{ p.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--primary" style="width: {{ p.pct }}%"></span></div>
+                        </div>
+                    {% empty %}
+                        <p class="swh-empty"><span class="material-symbols-outlined">donut_small</span>{% trans "No pages were recorded for this visit." %}</p>
+                    {% endfor %}
+                    {% if report.pages|length > 8 %}
+                        <p class="swh-card__sub">{% blocktrans with n=report.pages|length|add:"-8" %}and {{ n }} other pages{% endblocktrans %}</p>
+                    {% endif %}
+                </section>
+
+                {# ── Technical details ───────────────────────────────────────── #}
+                <section class="swh-card">
+                    <header class="swh-card__head">
+                        <span class="swh-card__icon material-symbols-outlined">fingerprint</span>
+                        <div>
+                            <h2 class="swh-card__title">{% trans "Details" %}</h2>
+                            <p class="swh-card__sub">{% trans "Anonymous ids — no personal data is stored." %}</p>
+                        </div>
+                    </header>
+                    <dl class="swh-facts">
+                        <dt>{% trans "Landing page" %}</dt><dd dir="ltr">{{ visit.landing_path }}</dd>
+                        <dt>{% trans "Came from" %}</dt><dd dir="ltr">{{ visit.referrer_host|default:"—" }}</dd>
+                        <dt>{% trans "Started" %}</dt><dd>{{ visit.started_at|date:"j M Y, H:i:s" }}</dd>
+                        <dt>{% trans "Last activity" %}</dt><dd>{{ visit.last_seen_at|date:"j M Y, H:i:s" }}</dd>
+                        <dt>{% trans "Visitor" %}</dt><dd dir="ltr" class="swh-mono">{{ visit.visitor_id }}</dd>
+                        <dt>{% trans "Session" %}</dt><dd dir="ltr" class="swh-mono">{{ visit.session_id }}</dd>
+                    </dl>
+                </section>
+
+                {# ── The same browser's other visits ─────────────────────────── #}
+                <section class="swh-card">
+                    <header class="swh-card__head">
+                        <span class="swh-card__icon material-symbols-outlined">history</span>
+                        <div>
+                            <h2 class="swh-card__title">{% trans "Other visits by this visitor" %}</h2>
+                        </div>
+                    </header>
+                    {% if other_visits %}
+                        <ul class="swh-list swh-list--compact">
+                            {% for o in other_visits %}
+                                <li>
+                                    <a class="swh-list__row" href="{% url 'admin:analytics_visitsession_change' o.visit.pk %}">
+                                        <span class="swh-dot swh-bg--primary"></span>
+                                        <span class="swh-list__main">
+                                            <span class="swh-list__title">{{ o.visit.started_at|date:"j M Y, H:i" }}</span>
+                                            <span class="swh-list__meta">{{ o.visit.page_count }} {% trans "pages" %} · {{ o.total }}</span>
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% if other_visit_count > other_visits|length %}
+                            <a class="swh-link" href="{% url 'admin:analytics_visitsession_changelist' %}?visitor_id={{ visit.visitor_id }}">{% blocktrans with n=other_visit_count %}All {{ n }} visits{% endblocktrans %} <span class="swh-arrow">{{ flow_arrow }}</span></a>
+                        {% endif %}
+                    {% else %}
+                        <p class="swh-empty"><span class="material-symbols-outlined">person</span>{% trans "This is the visitor's only visit so far." %}</p>
+                    {% endif %}
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}
