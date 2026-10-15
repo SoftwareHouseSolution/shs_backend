@@ -37,6 +37,22 @@ def test_admin_dashboard_renders(admin_client):
     assert admin_client.get(reverse("admin:index")).status_code == 200
 
 
+def test_users_and_groups_use_the_admin_theme(admin_client, superuser):
+    from django.contrib import admin
+    from django.contrib.auth.models import Group, User
+    from unfold.admin import ModelAdmin
+
+    assert isinstance(admin.site._registry[User], ModelAdmin)
+    assert isinstance(admin.site._registry[Group], ModelAdmin)
+    for url in (
+        reverse("admin:auth_user_change", args=[superuser.pk]),
+        reverse("admin:auth_user_add"),
+        reverse("admin:auth_user_password_change", args=[superuser.pk]),
+        reverse("admin:auth_group_add"),
+    ):
+        assert admin_client.get(url).status_code == 200, url
+
+
 def test_singleton_admin_goes_straight_to_the_record(admin_client):
     response = admin_client.get(reverse("admin:site_config_sitesettings_changelist"))
     assert response.status_code == 302

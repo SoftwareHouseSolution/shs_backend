@@ -1801,3 +1801,17 @@ msgstr "صفحة «%(page)s» تجذب الانتباه أطول وقت: %(t)s �
 
 msgid "%(rate)d%% of views of “%(page)s” end the visit — the highest exit rate."
 msgstr "%(rate)d%% من مشاهدات «%(page)s» تنتهي عندها الزيارة — أعلى معدل خروج."
+
+# ── Users (Django's auth forms, not in its Arabic catalogue) ─────────────────
+
+msgid "Password-based authentication"
+msgstr "المصادقة بكلمة المرور"
+
+msgid "Enabled"
+msgstr "مفعّلة"
+
+msgid "Disabled"
+msgstr "معطّلة"
+
+msgid "Whether the user will be able to authenticate using a password or not. If disabled, they may still be able to authenticate using other backends, such as Single Sign-On or LDAP."
+msgstr "ما إذا كان المستخدم سيتمكن من تسجيل الدخول بكلمة مرور أم لا. عند التعطيل قد يظل قادرًا على تسجيل الدخول بطرق أخرى، مثل الدخول الموحّد (SSO) أو LDAP."
