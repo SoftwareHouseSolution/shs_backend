@@ -131,6 +131,7 @@
         <div class="swh-heading">
             <h2>{% trans "Visitors" %}</h2>
             <span class="swh-pill swh-pill--neutral">{% trans "Last 7 days" %}</span>
+            <a class="swh-link swh-heading__action" href="{% url 'admin:analytics_visitsession_analysis' %}">{% trans "Full analysis" %} <span class="swh-arrow">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
         </div>
 
         <div class="swh-card swh-strip">

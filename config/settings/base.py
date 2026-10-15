@@ -391,7 +391,13 @@ UNFOLD = {
             {
                 "title": _("Visitors"),
                 "items": [
-                    {"title": _("Visits"), "icon": "timeline", "link": reverse_lazy("admin:analytics_visitsession_changelist")},
+                    {"title": _("Visit analysis"), "icon": "monitoring", "link": reverse_lazy("admin:analytics_visitsession_analysis")},
+                    {
+                        "title": _("Visits"),
+                        "icon": "timeline",
+                        "link": reverse_lazy("admin:analytics_visitsession_changelist"),
+                        "active": "apps.analytics.admin.visits_nav_active",
+                    },
                     {"title": _("Page views"), "icon": "visibility", "link": reverse_lazy("admin:analytics_pageview_changelist")},
                 ],
             },

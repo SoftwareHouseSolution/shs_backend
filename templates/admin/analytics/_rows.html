@@ -1,0 +1,11 @@
+{% load i18n %}
+{# A ranked breakdown: label, count, share and a bar. With rate=True the % shown is row.extra.rate. #}
+{% for r in rows %}
+    <div class="swh-share">
+        <span class="swh-share__label">{% if r.extra.icon %}<span class="material-symbols-outlined">{{ r.extra.icon }}</span>{% endif %}<span class="swh-share__text"{% if r.extra.path %} title="{{ r.extra.path }}"{% endif %}>{{ r.label }}</span></span>
+        <span class="swh-share__value">{{ r.count }}{% if rate %} <small>{{ r.extra.rate }}%</small>{% elif not no_pct %} <small>{{ r.pct }}%</small>{% endif %}</span>
+        <div class="swh-track"><span class="swh-bg--{{ tone|default:'primary' }}" style="width: {{ r.bar }}%"></span></div>
+    </div>
+{% empty %}
+    <p class="swh-empty"><span class="material-symbols-outlined">query_stats</span>{% trans "Not enough data yet." %}</p>
+{% endfor %}

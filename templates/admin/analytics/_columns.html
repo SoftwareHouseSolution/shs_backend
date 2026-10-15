@@ -1,0 +1,11 @@
+{# A distribution as vertical columns: count above, share inside, bucket below. #}
+<div class="swh-columns">
+    {% for r in rows %}
+        <div class="swh-columns__col" title="{{ r.label }}: {{ r.count }} ({{ r.pct }}%)">
+            <span class="swh-columns__n">{{ r.count }}</span>
+            <span class="swh-columns__bar"><span style="height: {{ r.bar }}%"></span></span>
+            <span class="swh-columns__pct">{{ r.pct }}%</span>
+            <span class="swh-columns__label" dir="ltr">{{ r.label }}</span>
+        </div>
+    {% endfor %}
+</div>

@@ -1,13 +1,19 @@
 """Read-only views of visitor analytics. Records are written only by the site itself."""
 
+import csv
+
 from django.contrib import admin
+from django.http import HttpResponse
+from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import TemplateView
 from unfold.decorators import display
+from unfold.views import UnfoldModelAdminViewMixin
 
 from apps.core.admin_utils import PlainAdmin
 
-from . import reports
+from . import analysis, reports
 from .models import PageView, VisitSession
 
 
@@ -32,6 +38,63 @@ def _flow_html(session, titles, *, limit: int):
     return format_html('<span class="swh-flow">{}{}</span>', chips, more)
 
 
+def visits_nav_active(request) -> bool:
+    """Sidebar (settings.UNFOLD): "Visits" is the current page except on the analysis page
+    beneath it, which has its own entry."""
+    visits = reverse("admin:analytics_visitsession_changelist")
+    return request.path.startswith(visits) and request.path != reverse("admin:analytics_visitsession_analysis")
+
+
+class VisitAnalysisView(UnfoldModelAdminViewMixin, TemplateView):
+    """Admin → Visitors → Visit analysis: the full report for a chosen period."""
+
+    title = _("Visit analysis")
+    permission_required = ("analytics.view_visitsession",)
+    template_name = "admin/analytics/analysis.html"
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("export") == "csv":
+            return self._csv(analysis.analyse(analysis.period_from(request.GET)))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        period = analysis.period_from(self.request.GET)
+        return {
+            **super().get_context_data(**kwargs),
+            "report": analysis.analyse(period),
+            "presets": analysis.PRESETS,
+            "flow_arrow": reports.flow_arrow(),
+            "visits_url": reverse("admin:analytics_visitsession_changelist"),
+        }
+
+    @staticmethod
+    def _csv(report) -> HttpResponse:
+        """The report's tables in one CSV — UTF-8 with a BOM, so Excel shows Arabic page names."""
+        response = HttpResponse(content_type="text/csv; charset=utf-8")
+        name = f"visit-analysis-{report.period.first or 'all'}-{report.period.last}.csv"
+        response["Content-Disposition"] = f'attachment; filename="{name}"'
+        response.write("﻿")
+        w = csv.writer(response)
+        w.writerow([_("Visit analysis"), report.period.label])
+        w.writerow([])
+        w.writerow([_("Summary")])
+        for kpi in report.kpis:
+            w.writerow([kpi.title, kpi.value])
+        w.writerow([])
+        w.writerow([_("Date"), _("Visits"), _("Visitors"), _("Page views")])
+        w.writerows(report.series)
+        w.writerow([])
+        w.writerow([_("Page"), _("Address"), _("Views"), _("Visits"), _("Avg. time"), _("Total time"), _("Entries"), _("Exit rate")])
+        for p in report.pages:
+            e = p.extra
+            w.writerow([p.label, e["path"], p.count, e["visits"], e["avg_time"], e["total_time"], e["entries"], f"{e['exit_rate']}%"])
+        w.writerow([])
+        w.writerow([_("Source"), _("Visits"), _("Share")])
+        for r in report.sources:
+            w.writerow([r.label, r.count, f"{r.pct}%"])
+        return response
+
+
 @admin.register(VisitSession)
 class VisitSessionAdmin(_ReadOnly, PlainAdmin):
     list_display = ["started_at", "visitor", "device", "language", "pages", "time_on_site", "flow"]
@@ -41,6 +104,10 @@ class VisitSessionAdmin(_ReadOnly, PlainAdmin):
     list_per_page = 50
     # The visit's page is a report, not a form: see templates/admin/analytics/visitsession/.
     change_form_template = "admin/analytics/visitsession/change_form.html"
+
+    def get_urls(self):
+        view = self.admin_site.admin_view(VisitAnalysisView.as_view(model_admin=self))
+        return [path("analysis/", view, name="analytics_visitsession_analysis"), *super().get_urls()]
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         visit = self.get_object(request, object_id)
@@ -112,7 +179,5 @@ class PageViewAdmin(_ReadOnly, PlainAdmin):
 
     @display(description=_("Visit"))
     def visit_link(self, obj):
-        from django.urls import reverse
-
         url = reverse("admin:analytics_visitsession_change", args=[obj.session_id])
         return format_html('<a class="text-primary-600" href="{}">{}</a>', url, str(obj.session.visitor_id)[:8])

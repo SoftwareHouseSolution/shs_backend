@@ -1634,3 +1634,170 @@ msgstr "هذه هي الزيارة الوحيدة لهذا الزائر حتى �
 
 msgid "Views in a row"
 msgstr "مشاهدات متتالية"
+
+# ── Visit analysis (admin) ──────────────────────────────────────────────────
+
+msgid "Visit analysis"
+msgstr "تحليل الزيارات"
+
+msgid "Full analysis"
+msgstr "التحليل الكامل"
+
+msgid "Period"
+msgstr "الفترة"
+
+msgid "All time"
+msgstr "كل الفترات"
+
+msgid "Last 30 days"
+msgstr "آخر 30 يومًا"
+
+msgid "Last 90 days"
+msgstr "آخر 90 يومًا"
+
+msgid "Apply"
+msgstr "تطبيق"
+
+msgid "Export CSV"
+msgstr "تصدير CSV"
+
+msgid "compared with %(p)s"
+msgstr "مقارنةً بـ %(p)s"
+
+msgid "No visits in this period. Choose a longer period or “All time”."
+msgstr "لا توجد زيارات في هذه الفترة. اختر فترة أطول أو «كل الفترات»."
+
+msgid "Against the previous period"
+msgstr "مقارنةً بالفترة السابقة"
+
+msgid "vs previous period"
+msgstr "عن الفترة السابقة"
+
+msgid "No earlier data to compare"
+msgstr "لا توجد بيانات سابقة للمقارنة"
+
+msgid "Avg. visit duration"
+msgstr "متوسط مدة الزيارة"
+
+msgid "Bounce rate"
+msgstr "معدل الارتداد"
+
+msgid "Returning visits"
+msgstr "الزيارات المتكررة"
+
+msgid "New visits"
+msgstr "الزيارات الجديدة"
+
+msgid "Total time on site"
+msgstr "إجمالي الوقت على الموقع"
+
+msgid "Traffic over time"
+msgstr "حركة الزيارات عبر الوقت"
+
+msgid "per day"
+msgstr "يوميًا"
+
+msgid "per month"
+msgstr "شهريًا"
+
+msgid "Key findings"
+msgstr "أهم الملاحظات"
+
+msgid "Findings appear once the period has a few visits."
+msgstr "تظهر الملاحظات عندما تحتوي الفترة على بضع زيارات."
+
+msgid "New and returning"
+msgstr "جديدة ومتكررة"
+
+msgid "Both languages of a page are counted together."
+msgstr "تُحتسب نسختا الصفحة باللغتين معًا."
+
+msgid "Total time"
+msgstr "إجمالي الوقت"
+
+msgid "Entries"
+msgstr "مرات الدخول"
+
+msgid "Exit rate"
+msgstr "معدل الخروج"
+
+msgid "Entry pages"
+msgstr "صفحات الدخول"
+
+msgid "Where visits start · bounce rate"
+msgstr "حيث تبدأ الزيارات · معدل الارتداد"
+
+msgid "Exit pages"
+msgstr "صفحات الخروج"
+
+msgid "Where visits end · exit rate"
+msgstr "حيث تنتهي الزيارات · معدل الخروج"
+
+msgid "Common paths"
+msgstr "المسارات الشائعة"
+
+msgid "Most frequent moves between pages"
+msgstr "أكثر التنقلات تكرارًا بين الصفحات"
+
+msgid "Traffic sources"
+msgstr "مصادر الزيارات"
+
+msgid "Source"
+msgstr "المصدر"
+
+msgid "Share"
+msgstr "النسبة"
+
+msgid "Direct / unknown"
+msgstr "مباشر / غير معروف"
+
+msgid "When visitors come"
+msgstr "متى يأتي الزوار"
+
+msgid "Visits by day of the week and hour (site time)"
+msgstr "الزيارات حسب يوم الأسبوع والساعة (بتوقيت الموقع)"
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Fewer"
+msgstr "أقل"
+
+msgid "More"
+msgstr "أكثر"
+
+msgid "Visit length"
+msgstr "مدة الزيارة"
+
+msgid "Browsers"
+msgstr "المتصفحات"
+
+msgid "Operating systems"
+msgstr "أنظمة التشغيل"
+
+msgid "Not enough data yet."
+msgstr "لا توجد بيانات كافية بعد."
+
+msgid "Anonymous analytics: no cookies, IP addresses or personal data. Time counts only while the page is visible."
+msgstr "تحليلات مجهولة الهوية: بلا ملفات تعريف ارتباط أو عناوين IP أو بيانات شخصية. يُحتسب الوقت فقط أثناء ظهور الصفحة."
+
+msgid "Browse individual visits"
+msgstr "تصفح الزيارات واحدة واحدة"
+
+msgid "%(m)dm"
+msgstr "%(m)d د"
+
+msgid "Busiest day: %(day)s, with %(n)d visits."
+msgstr "أكثر الأيام زيارةً: %(day)s، بعدد %(n)d زيارة."
+
+msgid "%(day)s is the strongest day of the week."
+msgstr "يوم %(day)s هو الأقوى خلال الأسبوع."
+
+msgid "Most visits start between %(a)02d:00 and %(b)02d:00."
+msgstr "تبدأ معظم الزيارات بين الساعة %(a)02d:00 و%(b)02d:00."
+
+msgid "“%(page)s” holds attention longest: %(t)s per view on average."
+msgstr "صفحة «%(page)s» تجذب الانتباه أطول وقت: %(t)s في المتوسط لكل مشاهدة."
+
+msgid "%(rate)d%% of views of “%(page)s” end the visit — the highest exit rate."
+msgstr "%(rate)d%% من مشاهدات «%(page)s» تنتهي عندها الزيارة — أعلى معدل خروج."

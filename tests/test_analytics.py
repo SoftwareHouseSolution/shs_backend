@@ -227,6 +227,65 @@ def test_visit_page_lists_the_visitors_other_visits(admin_client):
     assert reverse("admin:analytics_visitsession_change", args=[first.pk]) in body
 
 
+def test_analysis_period_from_presets_and_dates():
+    from apps.analytics.analysis import period_from
+
+    today = timezone.localdate()
+    assert period_from({}).first == today - timedelta(days=29)  # default: last 30 days
+    week = period_from({"range": "7d"})
+    assert (week.first, week.last) == (today - timedelta(days=6), today)
+    assert week.previous().last == today - timedelta(days=7) and week.previous().first == today - timedelta(days=13)
+    assert period_from({"range": "all"}).first is None and period_from({"range": "all"}).previous() is None
+    custom = period_from({"from": "2026-02-10", "to": "2026-02-01"})  # reversed dates are swapped
+    assert (custom.key, str(custom.first), str(custom.last)) == ("custom", "2026-02-01", "2026-02-10")
+    assert period_from({"from": "not-a-date", "range": "nope"}).key == "30d"
+
+
+def test_analysis_figures_and_tables():
+    from apps.analytics.analysis import analyse, period_from
+
+    visitor = uuid.uuid4()
+    _visit([("/en", 30_000)], days_ago=10, visitor=visitor)  # previous period
+    _visit([("/en", 4000), ("/en/customers", 6000)], visitor=visitor)  # returning
+    _visit([("/ar/customers", 20_000)])  # bounce, new
+    report = analyse(period_from({"range": "7d"}))
+
+    kpis = {k.key: k for k in report.kpis}
+    assert (kpis["visitors"].value, kpis["visits"].value, kpis["views"].value) == ("2", "2", "3")
+    assert kpis["bounce"].value == "50%" and kpis["returning"].value == "50%"
+    assert kpis["visits"].change == 100 and kpis["duration"].change == -50
+    assert kpis["bounce"].change == -50 and kpis["bounce"].trend == "good"  # 100% → 50%: down is good
+
+    pages = {p.label: p for p in report.pages}
+    assert pages["Our Clients"].count == 2 and pages["Our Clients"].extra["exit_rate"] == 100  # both languages
+    assert [e.label for e in report.entries] == ["Home", "Our Clients"]
+    assert [t.label for t in report.transitions] == ["Home → Our Clients"]
+    assert sum(r.count for r in report.lengths) == 2 and sum(r.count for r in report.depths) == 2
+    assert sum(row["total"] for row in report.heatmap["rows"]) == 2
+
+
+def test_analysis_page_and_csv_export(admin_client):
+    _visit([("/en", 4000), ("/en/customers", 7000)])
+    url = reverse("admin:analytics_visitsession_analysis")
+    for params in ({}, {"range": "all"}, {"range": "today"}, {"from": "2020-01-01", "to": "2020-01-31"}):
+        assert admin_client.get(url, params).status_code == 200
+    page = admin_client.get(url).content.decode()
+    assert "Visit analysis" in page and "Our Clients" in page and "Traffic sources" in page
+
+    export = admin_client.get(url, {"range": "7d", "export": "csv"})
+    assert export["Content-Type"].startswith("text/csv") and "attachment" in export["Content-Disposition"]
+    body = export.content.decode("utf-8-sig")
+    assert "Our Clients" in body and "/customers" in body
+
+
+def test_analysis_page_needs_view_permission(client):
+    from django.contrib.auth.models import User
+
+    staff = User.objects.create_user("editor", password="x", is_staff=True)
+    client.force_login(staff)
+    assert client.get(reverse("admin:analytics_visitsession_analysis")).status_code == 403
+
+
 def test_analytics_admin_is_read_only(admin_client):
     assert admin_client.get(reverse("admin:analytics_visitsession_add")).status_code == 403
 

@@ -1,0 +1,295 @@
+{% extends "admin/base_site.html" %}
+{% load i18n unfold %}
+
+{# Admin → Visitors → Visit analysis. Data: apps.analytics.analysis; styles: core/admin.css. #}
+
+{% block content %}
+    <div class="swh-dash">
+
+        {# ── Period ──────────────────────────────────────────────────────────── #}
+        <section class="swh-card swh-toolbar">
+            <div class="swh-toolbar__head">
+                <div>
+                    <h1 class="swh-toolbar__title">{% trans "Visit analysis" %}</h1>
+                    <p class="swh-card__sub">
+                        {{ report.period.label }}
+                        {% if report.previous %} · {% blocktrans with p=report.previous.label %}compared with {{ p }}{% endblocktrans %}{% endif %}
+                    </p>
+                </div>
+                {% if report.has_data %}
+                    <a class="swh-btn-outline" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&amp;{% endif %}export=csv">
+                        <span class="material-symbols-outlined">download</span>{% trans "Export CSV" %}
+                    </a>
+                {% endif %}
+            </div>
+            <div class="swh-toolbar__controls">
+                <nav class="swh-segment" aria-label="{% trans 'Period' %}">
+                    {% for key, label in presets %}
+                        <a href="?range={{ key }}" class="{% if report.period.key == key %}is-active{% endif %}">{{ label }}</a>
+                    {% endfor %}
+                </nav>
+                <form method="get" class="swh-range">
+                    <label><span>{% trans "From" %}</span><input type="date" name="from" value="{{ report.period.first|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}"></label>
+                    <label><span>{% trans "To" %}</span><input type="date" name="to" value="{{ report.period.last|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}"></label>
+                    <button type="submit" class="swh-btn-solid">{% trans "Apply" %}</button>
+                </form>
+            </div>
+        </section>
+
+        {% if not report.has_data %}
+            <section class="swh-card">
+                <p class="swh-empty"><span class="material-symbols-outlined">query_stats</span>{% trans "No visits in this period. Choose a longer period or “All time”." %}</p>
+            </section>
+        {% else %}
+
+        {# ── Headline figures ────────────────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--4">
+            {% for kpi in report.kpis %}
+                <div class="swh-card swh-metric">
+                    <span class="swh-metric__label"><span class="material-symbols-outlined">{{ kpi.icon }}</span>{{ kpi.title }}</span>
+                    <span class="swh-metric__value">{{ kpi.value }}</span>
+                    {% if kpi.change is not None %}
+                        <span class="swh-change swh-change--{{ kpi.trend }}" title="{% trans 'Against the previous period' %}">
+                            <span class="material-symbols-outlined">{% if kpi.change > 0 %}arrow_upward{% elif kpi.change < 0 %}arrow_downward{% else %}remove{% endif %}</span>{% if kpi.change > 0 %}+{% endif %}{{ kpi.change }}%
+                            <small>{% trans "vs previous period" %}</small>
+                        </span>
+                    {% elif report.previous %}
+                        <span class="swh-change swh-change--flat"><small>{% trans "No earlier data to compare" %}</small></span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {# ── Trend and findings ──────────────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--2-1">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">show_chart</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Traffic over time" %}</h2>
+                        <p class="swh-card__sub">{{ report.trend_unit }}</p>
+                    </div>
+                    <div class="swh-legend swh-card__action">
+                        <span><i style="background: var(--color-primary-600)"></i>{% trans "Visits" %}</span>
+                        <span><i style="background: #0d9488"></i>{% trans "Visitors" %}</span>
+                    </div>
+                </header>
+                {% component "unfold/components/chart/line.html" with data=report.trend_chart height=320 %}{% endcomponent %}
+            </section>
+
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">lightbulb</span>
+                    <div><h2 class="swh-card__title">{% trans "Key findings" %}</h2></div>
+                </header>
+                {% if report.insights %}
+                    <ul class="swh-insights">
+                        {% for i in report.insights %}
+                            <li><span class="material-symbols-outlined">{{ i.icon }}</span><span>{{ i.text }}</span></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">lightbulb</span>{% trans "Findings appear once the period has a few visits." %}</p>
+                {% endif %}
+                <p class="swh-section-label">{% trans "New and returning" %}</p>
+                {% include "admin/analytics/_rows.html" with rows=report.new_vs_returning tone="teal" %}
+            </section>
+        </div>
+
+        {# ── Pages ───────────────────────────────────────────────────────────── #}
+        <section class="swh-card">
+            <header class="swh-card__head">
+                <span class="swh-card__icon material-symbols-outlined">description</span>
+                <div>
+                    <h2 class="swh-card__title">{% trans "Pages" %}</h2>
+                    <p class="swh-card__sub">{% trans "Both languages of a page are counted together." %}</p>
+                </div>
+            </header>
+            <div class="swh-table-wrap">
+                <table class="swh-table swh-table--full">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Page" %}</th>
+                            <th class="swh-num">{% trans "Views" %}</th>
+                            <th class="swh-num">{% trans "Visits" %}</th>
+                            <th class="swh-num">{% trans "Avg. time" %}</th>
+                            <th class="swh-num">{% trans "Total time" %}</th>
+                            <th class="swh-num">{% trans "Entries" %}</th>
+                            <th class="swh-num">{% trans "Exit rate" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in report.pages %}
+                            <tr>
+                                <td>
+                                    <div class="swh-page-cell">
+                                        <span class="swh-rank">{{ forloop.counter }}</span>
+                                        <span class="swh-page-cell__text">
+                                            <span class="swh-strong">{{ p.label }}</span>
+                                            <span class="swh-list__meta" dir="ltr">{{ p.extra.path }}</span>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="swh-num">
+                                    <span class="swh-strong">{{ p.count }}</span> <small class="swh-muted">{{ p.pct }}%</small>
+                                    <span class="swh-track swh-track--thin swh-track--inline"><span class="swh-bg--primary" style="width: {{ p.bar }}%"></span></span>
+                                </td>
+                                <td class="swh-num">{{ p.extra.visits }}</td>
+                                <td class="swh-num">{{ p.extra.avg_time }}</td>
+                                <td class="swh-num">{{ p.extra.total_time }}</td>
+                                <td class="swh-num">{{ p.extra.entries }}</td>
+                                <td class="swh-num"><span class="swh-pill {% if p.extra.exit_rate >= 60 %}swh-pill--danger{% elif p.extra.exit_rate >= 35 %}swh-pill--warning{% else %}swh-pill--success{% endif %}">{{ p.extra.exit_rate }}%</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {# ── How visits start, move and end ──────────────────────────────────── #}
+        <div class="swh-grid swh-grid--3">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">login</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Entry pages" %}</h2>
+                        <p class="swh-card__sub">{% trans "Where visits start · bounce rate" %}</p>
+                    </div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.entries rate=True %}
+            </section>
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">logout</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Exit pages" %}</h2>
+                        <p class="swh-card__sub">{% trans "Where visits end · exit rate" %}</p>
+                    </div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.exits rate=True tone="warning" %}
+            </section>
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">alt_route</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Common paths" %}</h2>
+                        <p class="swh-card__sub">{% trans "Most frequent moves between pages" %}</p>
+                    </div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.transitions tone="teal" no_pct=True %}
+            </section>
+        </div>
+
+        {# ── Where visitors come from ────────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--2-1">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">call_received</span>
+                    <div><h2 class="swh-card__title">{% trans "Traffic sources" %}</h2></div>
+                </header>
+                <div class="swh-table-wrap">
+                    <table class="swh-table swh-table--full">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Source" %}</th>
+                                <th class="swh-num">{% trans "Visits" %}</th>
+                                <th class="swh-num">{% trans "Pages per visit" %}</th>
+                                <th class="swh-num">{% trans "Avg. time" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in report.sources %}
+                                <tr>
+                                    <td>
+                                        <span class="swh-share__label"><span class="material-symbols-outlined">{{ r.extra.icon }}</span><span {% if r.extra.ltr %}dir="ltr"{% endif %}>{{ r.label }}</span></span>
+                                        <span class="swh-track swh-track--thin"><span class="swh-bg--primary" style="width: {{ r.bar }}%"></span></span>
+                                    </td>
+                                    <td class="swh-num"><span class="swh-strong">{{ r.count }}</span> <small class="swh-muted">{{ r.pct }}%</small></td>
+                                    <td class="swh-num">{{ r.extra.pages_per_visit }}</td>
+                                    <td class="swh-num">{{ r.extra.avg_time }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">translate</span>
+                    <div><h2 class="swh-card__title">{% trans "Language" %}</h2></div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.languages tone="teal" %}
+                <p class="swh-section-label">{% trans "Device" %}</p>
+                {% include "admin/analytics/_rows.html" with rows=report.devices %}
+            </section>
+        </div>
+
+        {# ── When ────────────────────────────────────────────────────────────── #}
+        <section class="swh-card">
+            <header class="swh-card__head">
+                <span class="swh-card__icon material-symbols-outlined">calendar_view_week</span>
+                <div>
+                    <h2 class="swh-card__title">{% trans "When visitors come" %}</h2>
+                    <p class="swh-card__sub">{% trans "Visits by day of the week and hour (site time)" %}</p>
+                </div>
+            </header>
+            <div class="swh-table-wrap">
+                <div class="swh-heatmap">
+                    <span></span>
+                    {% for h in report.heatmap.hours %}<span class="swh-heatmap__hour">{% if h|divisibleby:3 %}{{ h|stringformat:"02d" }}{% endif %}</span>{% endfor %}
+                    <span class="swh-heatmap__hour">{% trans "Total" %}</span>
+                    {% for row in report.heatmap.rows %}
+                        <span class="swh-heatmap__day">{{ row.day }}</span>
+                        {% for c in row.cells %}<span class="swh-heatmap__cell" style="--level: {{ c.level }}%" title="{{ row.day }} {{ c.hour|stringformat:'02d' }}:00 — {{ c.n }}">{% if c.n %}{{ c.n }}{% endif %}</span>{% endfor %}
+                        <span class="swh-heatmap__total">{{ row.total }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="swh-heatmap-scale">
+                <span>{% trans "Fewer" %}</span><i style="--level: 8%"></i><i style="--level: 30%"></i><i style="--level: 55%"></i><i style="--level: 80%"></i><i style="--level: 100%"></i><span>{% trans "More" %}</span>
+            </div>
+        </section>
+
+        {# ── Engagement and technology ───────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--2">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">timer</span>
+                    <div><h2 class="swh-card__title">{% trans "Visit length" %}</h2></div>
+                </header>
+                {% include "admin/analytics/_columns.html" with rows=report.lengths %}
+            </section>
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">layers</span>
+                    <div><h2 class="swh-card__title">{% trans "Pages per visit" %}</h2></div>
+                </header>
+                {% include "admin/analytics/_columns.html" with rows=report.depths %}
+            </section>
+        </div>
+
+        <div class="swh-grid swh-grid--2">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">public</span>
+                    <div><h2 class="swh-card__title">{% trans "Browsers" %}</h2></div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.browsers %}
+            </section>
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">memory</span>
+                    <div><h2 class="swh-card__title">{% trans "Operating systems" %}</h2></div>
+                </header>
+                {% include "admin/analytics/_rows.html" with rows=report.systems tone="teal" %}
+            </section>
+        </div>
+
+        <p class="swh-footnote">
+            <span class="material-symbols-outlined">shield</span>
+            {% trans "Anonymous analytics: no cookies, IP addresses or personal data. Time counts only while the page is visible." %}
+            <a class="swh-link" href="{{ visits_url }}">{% trans "Browse individual visits" %} <span class="swh-arrow">{{ flow_arrow }}</span></a>
+        </p>
+        {% endif %}
+    </div>
+{% endblock %}
