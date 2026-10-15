@@ -16,7 +16,7 @@ RUN DJANGO_SECRET_KEY=build DATABASE_URL=sqlite:////tmp/build.db \
     python manage.py collectstatic --noinput
 
 # Fixed uid so the host can chown the bind-mounted media folder to it.
-RUN useradd --uid 10001 --no-create-home app && mkdir -p /app/media && chown app /app/media
+RUN useradd --uid 10001 --create-home app && mkdir -p /app/media && chown app /app/media
 USER app
 
 EXPOSE 8000
