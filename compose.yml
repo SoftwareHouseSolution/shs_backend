@@ -1,0 +1,43 @@
+# Production stack: Django (gunicorn) + its own PostgreSQL. Secrets come from .env next to
+# this file. Only the web container publishes a port, on 127.0.0.1 for the host nginx.
+name: shs-backend
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shs_backend
+      POSTGRES_USER: shs_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shs_user -d shs_backend"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [internal]
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://shs_user:${POSTGRES_PASSWORD}@db:5432/shs_backend
+      DJANGO_MEDIA_ROOT: /app/media
+    volumes:
+      # Host folder so nginx can serve uploads directly at /media/.
+      - ./media:/app/media
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8320}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+
+volumes:
+  db_data:
+
+networks:
+  internal:
