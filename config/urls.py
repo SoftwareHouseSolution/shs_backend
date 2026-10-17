@@ -7,6 +7,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 from apps.analytics.views import CollectView
 from apps.clients.views import ClientListView, ClientTaxonomyView
 from apps.content.views import PartnerListView, TestimonialListView
+from apps.core.admin_views import MediaCleanupView, SystemStatusView
 from apps.core.views import ApiNotFoundView, HealthView
 from apps.enquiries.views import EnquiryCreateView
 from apps.events.views import EventDetailView, EventListView
@@ -38,6 +39,13 @@ admin.site.site_header = "Software House Solutions"
 admin.site.site_title = "SWH CMS"
 
 urlpatterns = [
+    # Before admin.site.urls, whose catch-all would otherwise answer this path.
+    path(f"{settings.ADMIN_URL}system/", admin.site.admin_view(SystemStatusView.as_view()), name="admin-system-status"),
+    path(
+        f"{settings.ADMIN_URL}system/media-cleanup/",
+        admin.site.admin_view(MediaCleanupView.as_view()),
+        name="admin-media-cleanup",
+    ),
     path(settings.ADMIN_URL, admin.site.urls),
     # set_language — the admin's language switcher posts here.
     path("i18n/", include("django.conf.urls.i18n")),

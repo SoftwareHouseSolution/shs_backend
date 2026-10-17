@@ -1,0 +1,122 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{# Admin → System status → Clean up unused files. Logic: apps.core.media_cleanup. #}
+
+{% block content %}
+    <div class="swh-dash">
+
+        <section class="swh-card swh-toolbar">
+            <div class="swh-toolbar__head">
+                <div>
+                    <h1 class="swh-toolbar__title">{% trans "Media clean-up" %}</h1>
+                    <p class="swh-card__sub">
+                        {% blocktrans %}Unused files are moved to a trash folder, not deleted. You can restore any clean-up, or delete it for good once you are sure.{% endblocktrans %}
+                    </p>
+                </div>
+                <a class="swh-btn-outline" href="{{ status_url }}">
+                    <span class="material-symbols-outlined">arrow_back</span>{% trans "System status" %}
+                </a>
+            </div>
+        </section>
+
+        {# ── Unused files ────────────────────────────────────────────────────── #}
+        <section class="swh-card">
+            <header class="swh-card__head">
+                <span class="swh-card__icon material-symbols-outlined">cleaning_services</span>
+                <div>
+                    <h2 class="swh-card__title">{% trans "Unused files" %}</h2>
+                    <p class="swh-card__sub">{% blocktrans %}Files no content uses, not even in text, and not changed in the last {{ grace_minutes }} minutes.{% endblocktrans %}</p>
+                </div>
+            </header>
+
+            {% if unused_count %}
+                <form method="post" class="swh-cleanup__action" onsubmit="return confirm(this.dataset.confirm);"
+                      data-confirm="{% blocktrans with n=unused_count size=unused_size %}Move {{ n }} unused file(s) ({{ size }}) to the trash?{% endblocktrans %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="clean">
+                    <p class="swh-cleanup__summary">
+                        <strong>{{ unused_count }}</strong> {% trans "file(s)" %} · <strong>{{ unused_size }}</strong>
+                    </p>
+                    <button type="submit" class="swh-btn-solid">
+                        <span class="material-symbols-outlined">delete_sweep</span>{% blocktrans with n=unused_count %}Move {{ n }} file(s) to trash{% endblocktrans %}
+                    </button>
+                </form>
+
+                <div class="swh-check__table">
+                    <table class="swh-table">
+                        <thead><tr><th>{% trans "File" %}</th><th class="swh-num">{% trans "Size" %}</th></tr></thead>
+                        <tbody>
+                            {% for f in unused %}
+                                <tr><td dir="ltr">{{ f.name }}</td><td class="swh-num">{{ f.size|filesizeformat }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if more %}<p class="swh-card__sub swh-cleanup__more">{% blocktrans %}…and {{ more }} more.{% endblocktrans %}</p>{% endif %}
+            {% else %}
+                <p class="swh-empty swh-empty--success"><span class="material-symbols-outlined">check_circle</span>{% trans "Every stored file is used by content. Nothing to clean up." %}</p>
+            {% endif %}
+        </section>
+
+        {# ── Trash ───────────────────────────────────────────────────────────── #}
+        <section class="swh-card">
+            <header class="swh-card__head">
+                <span class="swh-card__icon material-symbols-outlined">delete</span>
+                <div>
+                    <h2 class="swh-card__title">{% trans "Trash" %}</h2>
+                    <p class="swh-card__sub">{% trans "Each clean-up is kept here until you restore it or delete it permanently." %}</p>
+                </div>
+            </header>
+
+            {% if batches %}
+                <div class="swh-check__table">
+                    <table class="swh-table">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Cleaned up" %}</th>
+                                <th>{% trans "By" %}</th>
+                                <th class="swh-num">{% trans "Files" %}</th>
+                                <th class="swh-num">{% trans "Size" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in batches %}
+                                <tr>
+                                    <td>{{ b.created|date:"j M Y, H:i" }}</td>
+                                    <td>{{ b.user|default:"—" }}</td>
+                                    <td class="swh-num">{{ b.count }}</td>
+                                    <td class="swh-num">{{ b.size|filesizeformat }}</td>
+                                    <td class="swh-num">
+                                        <div class="swh-cleanup__buttons">
+                                            <form method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="restore">
+                                                <input type="hidden" name="batch" value="{{ b.id }}">
+                                                <button type="submit" class="swh-btn-outline">
+                                                    <span class="material-symbols-outlined">restore_from_trash</span>{% trans "Restore" %}
+                                                </button>
+                                            </form>
+                                            <form method="post" onsubmit="return confirm(this.dataset.confirm);"
+                                                  data-confirm="{% blocktrans with n=b.count %}Permanently delete {{ n }} file(s)? This cannot be undone.{% endblocktrans %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="purge">
+                                                <input type="hidden" name="batch" value="{{ b.id }}">
+                                                <button type="submit" class="swh-btn-outline swh-btn-danger">
+                                                    <span class="material-symbols-outlined">delete_forever</span>{% trans "Delete permanently" %}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="swh-empty"><span class="material-symbols-outlined">delete</span>{% trans "The trash is empty." %}</p>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}

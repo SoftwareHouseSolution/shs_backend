@@ -11,7 +11,7 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 MEDIA_ROOT = BASE_DIR / ".test-media"
 MEDIA_PUBLIC_BASE_URL = ""
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {"BACKEND": "apps.core.storage.DeduplicatingFileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
 ENQUIRY_NOTIFIER = "apps.enquiries.notifiers.NullEnquiryNotifier"

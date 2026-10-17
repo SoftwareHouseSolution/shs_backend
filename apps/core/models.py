@@ -73,3 +73,24 @@ class SingletonModel(models.Model):
     @classmethod
     def singleton_constraint(cls, name: str) -> models.CheckConstraint:
         return models.CheckConstraint(condition=models.Q(pk=cls.SINGLETON_PK), name=name)
+
+
+class StoredFile(models.Model):
+    """One row per distinct file in media storage, keyed by its content hash.
+
+    apps.core.storage.DeduplicatingFileSystemStorage looks an upload up here before writing
+    it: identical bytes reuse the stored file instead of adding a copy. Derived data —
+    `manage.py index_media` rebuilds it from the media folder at any time.
+    """
+
+    sha256 = models.CharField(_("SHA-256"), max_length=64, unique=True)
+    name = models.CharField(_("file"), max_length=255)
+    size = models.BigIntegerField(_("size (bytes)"))
+    created_at = models.DateTimeField(_("created"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("stored file")
+        verbose_name_plural = _("stored files")
+
+    def __str__(self):
+        return self.name

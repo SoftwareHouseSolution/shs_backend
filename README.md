@@ -176,6 +176,9 @@ backend/
 │   │   ├── models.py         # TimeStamped / Ordered / Publishable / Singleton bases
 │   │   ├── validators.py     # upload type/size/content, site-link validation
 │   │   ├── media.py          # upload naming, absolute media URLs, LinkField
+│   │   ├── storage.py        # media storage that reuses identical uploads (+ index_media)
+│   │   ├── media_cleanup.py  # unused media → restorable trash (Admin → System status)
+│   │   ├── system_status.py  # health checks behind Admin → System status (+ system_status)
 │   │   ├── admin_utils.py    # ContentAdmin base, language tabs, RTL, previews, dashboard
 │   │   ├── seeding.py + management/commands/seed_content.py
 │   │   └── locale/ar/        # Arabic API messages
@@ -268,6 +271,29 @@ browser and per tab, no cookies, no IP addresses — and browsers that send Do-N
 Global Privacy Control are not counted, nor are bots. Schedule
 `python manage.py prune_analytics` daily to delete visits older than
 `ANALYTICS_RETENTION_DAYS`.
+
+**System status** (superusers only, **System → System status**) checks the application
+(environment, uptime, memory, unapplied migrations), the server (CPU load, memory and disk
+where the OS reports them), PostgreSQL (latency, size, connections, long-running queries,
+cache hit ratio, deadlocks, largest tables), the cache, the media folder (files content
+points at that are missing from disk, duplicate and unused files), configuration (Django's
+system checks, including the production security checks) and the latest logged errors.
+It costs nothing on public requests: checks run only when the page is opened, results are
+reused for 30 seconds (the media scan for 10 minutes; **Check again** forces a fresh run),
+and database probes run under a 3-second statement timeout. The same report is available
+as `python manage.py system_status`, which exits with status 1 when a check fails
+(`--strict`: also on warnings), for cron or CI alerting.
+
+**Duplicate uploads.** Uploading an image or video that is already stored, to any record,
+reuses the stored file instead of writing a copy; both records then show the same URL.
+Files are matched by content (SHA-256), not by name. After deploying this or copying media
+in by hand, run `python manage.py index_media` once so files already on disk are recognised.
+
+**Cleaning up unused media** (System status → **Clean up unused files**). Lists files that
+no content uses — checked against every file field and any `/media/…` path mentioned in
+text — and that have not changed in the last hour, then moves them to `MEDIA_ROOT/.trash/`
+in one batch. Nothing is deleted: each batch can be restored from the same page, or deleted
+permanently once you are sure.
 
 **When changes appear.** The API reflects a save immediately. A frontend running on
 `next start` shows it within `CMS_REVALIDATE_SECONDS` (60 s by default). A static-export
@@ -544,7 +570,9 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py seed_content        # first deploy only
+python manage.py index_media         # once, so existing media is de-duplicated against
 # cron/systemd timer, daily: python manage.py prune_analytics
+# optional, every few minutes, alert on non-zero exit: python manage.py system_status
 python manage.py createsuperuser     # first deploy only
 gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3
 ```
@@ -562,6 +590,7 @@ Uploads go to `DJANGO_MEDIA_ROOT`. Serve that folder directly from the web serve
 `/media/` (it is not served by Django when `DEBUG` is off), e.g. nginx:
 
 ```nginx
+location /media/.trash/ { deny all; }   # files set aside by the media clean-up
 location /media/ { alias /var/www/shs/media/; expires 30d; add_header X-Content-Type-Options nosniff; }
 location /static/ { alias /var/www/shs/backend/staticfiles/; }
 location / { proxy_pass http://127.0.0.1:8000; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
@@ -569,7 +598,9 @@ location / { proxy_pass http://127.0.0.1:8000; proxy_set_header Host $host; prox
 
 Upload file names are unique, so media can be cached aggressively or put behind a CDN; set
 `MEDIA_PUBLIC_BASE_URL` to the CDN origin. For object storage (S3 and compatible), install
-`django-storages` and point `STORAGES["default"]` at it — no model changes are needed.
+`django-storages` and point `STORAGES["default"]` at it — no model changes are needed, but
+upload de-duplication (`apps.core.storage`) is built on the file-system storage and would
+need porting to the new backend.
 
 ### Frontend
 

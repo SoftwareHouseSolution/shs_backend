@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{# Admin → System → System status. Data: apps.core.system_status; styles: core/admin.css. #}
+
+{% block content %}
+    <div class="swh-dash">
+
+        <section class="swh-card swh-toolbar">
+            <div class="swh-toolbar__head">
+                <div>
+                    <h1 class="swh-toolbar__title">{% trans "System status" %}</h1>
+                    <p class="swh-card__sub">
+                        {% blocktrans with t=report.generated_at|time:"H:i:s" ms=report.duration_ms %}Checked at {{ t }} in {{ ms }} ms{% endblocktrans %}
+                        · {% blocktrans %}Results are reused for {{ ttl }} seconds so this page never adds load.{% endblocktrans %}
+                    </p>
+                </div>
+                <a class="swh-btn-outline" href="?refresh=1">
+                    <span class="material-symbols-outlined">refresh</span>{% trans "Check again" %}
+                </a>
+            </div>
+        </section>
+
+        {# ── Overall ─────────────────────────────────────────────────────────── #}
+        <section class="swh-card swh-status swh-tone--{{ report.tone }}">
+            <span class="swh-status__icon material-symbols-outlined">{% if report.status == "error" %}error{% elif report.status == "warning" %}warning{% else %}check_circle{% endif %}</span>
+            <div class="swh-status__main">
+                <h2 class="swh-status__title">{{ report.headline }}</h2>
+                {% if report.problems %}
+                    <ul class="swh-status__problems">
+                        {% for section, check in report.problems %}
+                            <li>
+                                <span class="swh-dot swh-bg--{{ check.tone }}"></span>
+                                <a href="#{{ section.key }}">{{ section.title }}</a> · <strong>{{ check.label }}</strong>: {{ check.value }}{% if check.detail %} — {{ check.detail }}{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-card__sub">{% trans "The server, database, cache and media all passed their checks." %}</p>
+                {% endif %}
+            </div>
+        </section>
+
+        {# ── Sections ────────────────────────────────────────────────────────── #}
+        <div class="swh-grid swh-grid--2">
+            {% for section in report.sections %}
+                <section class="swh-card" id="{{ section.key }}">
+                    <header class="swh-card__head">
+                        <span class="swh-card__icon material-symbols-outlined">{{ section.icon }}</span>
+                        <div><h2 class="swh-card__title">{{ section.title }}</h2></div>
+                        <span class="swh-pill swh-pill--{{ section.tone }} swh-card__action">{{ section.status_label }}</span>
+                    </header>
+
+                    <ul class="swh-checks">
+                        {% for check in section.checks %}
+                            <li class="swh-check">
+                                <span class="swh-dot swh-bg--{{ check.tone }}"></span>
+                                <div class="swh-check__main">
+                                    <span class="swh-check__label">{{ check.label }}</span>
+                                    {% if check.detail %}<span class="swh-check__detail">{{ check.detail }}</span>{% endif %}
+                                </div>
+                                <span class="swh-check__value swh-check__value--{{ check.tone }}" dir="auto">{{ check.value }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if section.key == "media" %}
+                        <div class="swh-check__actions">
+                            <a class="swh-btn-outline" href="{{ cleanup_url }}">
+                                <span class="material-symbols-outlined">cleaning_services</span>{% trans "Clean up unused files" %}
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% for table in section.tables %}
+                        <h3 class="swh-check__table-title">{{ table.title }}</h3>
+                        {% if table.rows %}
+                            <div class="swh-check__table">
+                                <table class="swh-table">
+                                    <thead><tr>{% for c in table.columns %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+                                    <tbody>
+                                        {% for row in table.rows %}
+                                            <tr>{% for cell in row %}<td dir="auto">{{ cell }}</td>{% endfor %}</tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="swh-empty swh-empty--success"><span class="material-symbols-outlined">check_circle</span>{{ table.empty }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </section>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

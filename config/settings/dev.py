@@ -14,6 +14,6 @@ CORS_ALLOWED_ORIGINS = env.list(
 
 # Plain storage in development: the manifest storage needs collectstatic to have run.
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {"BACKEND": "apps.core.storage.DeduplicatingFileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }

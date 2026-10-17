@@ -1815,3 +1815,380 @@ msgstr "معطّلة"
 
 msgid "Whether the user will be able to authenticate using a password or not. If disabled, they may still be able to authenticate using other backends, such as Single Sign-On or LDAP."
 msgstr "ما إذا كان المستخدم سيتمكن من تسجيل الدخول بكلمة مرور أم لا. عند التعطيل قد يظل قادرًا على تسجيل الدخول بطرق أخرى، مثل الدخول الموحّد (SSO) أو LDAP."
+
+# ── System status and media de-duplication ───────────────────────────────────
+
+msgid "%(free)s free of %(total)s"
+msgstr "%(free)s متاحة من %(total)s"
+
+msgid "%(n)d files referenced"
+msgstr "%(n)d ملفًا مستخدمًا"
+
+msgid "%(n)d issue(s)"
+msgstr "%(n)d مشكلة"
+
+msgid "%(n)d missing"
+msgstr "%(n)d مفقود"
+
+msgid "%(n)d not applied"
+msgstr "%(n)d غير مطبّق"
+
+msgid "%(n)d problem(s) need attention"
+msgstr "%(n)d مشكلة تحتاج إلى متابعة"
+
+msgid "%(size)s in identical copies of other files; new uploads never add more."
+msgstr "%(size)s في نسخ مطابقة لملفات أخرى؛ الرفع الجديد لا يضيف نسخًا أخرى."
+
+msgid "%(size)s on disk that no content uses"
+msgstr "%(size)s على القرص لا يستخدمها أي محتوى"
+
+msgid "%(size)s · scanned at %(t)s"
+msgstr "%(size)s · فُحصت الساعة %(t)s"
+
+msgid "A value written to the cache could not be read back."
+msgstr "تعذّرت قراءة قيمة كُتبت في الذاكرة المؤقتة."
+
+msgid "All applied"
+msgstr "مطبّقة بالكامل"
+
+msgid "All present"
+msgstr "كلها موجودة"
+
+msgid "All systems healthy"
+msgstr "كل الأنظمة تعمل بشكل سليم"
+
+msgid "Analytics clean-up"
+msgstr "تنظيف بيانات الزيارات"
+
+msgid "Application"
+msgstr "التطبيق"
+
+msgid "CPU load (1 / 5 / 15 min)"
+msgstr "حمل المعالج (1 / 5 / 15 دقيقة)"
+
+msgid "Cache"
+msgstr "الذاكرة المؤقتة"
+
+msgid "Cache hit ratio"
+msgstr "نسبة القراءة من الذاكرة"
+
+msgid "Check"
+msgstr "الفحص"
+
+msgid "Check again"
+msgstr "افحص مجددًا"
+
+msgid "Check could not run"
+msgstr "تعذّر تشغيل الفحص"
+
+msgid "Checked at %(t)s in %(ms)s ms"
+msgstr "فُحص الساعة %(t)s خلال %(ms)s مللي ثانية"
+
+msgid "Configuration"
+msgstr "الإعدادات"
+
+msgid "Connection"
+msgstr "الاتصال"
+
+msgid "Connections"
+msgstr "الاتصالات"
+
+msgid "Content points at files that are not on disk; the site shows broken images."
+msgstr "المحتوى يشير إلى ملفات غير موجودة على القرص؛ يعرض الموقع صورًا معطوبة."
+
+msgid "Database"
+msgstr "قاعدة البيانات"
+
+msgid "Database migrations"
+msgstr "ترحيلات قاعدة البيانات"
+
+msgid "Database size"
+msgstr "حجم قاعدة البيانات"
+
+msgid "Dead rows"
+msgstr "صفوف ميتة"
+
+msgid "Deadlocks"
+msgstr "حالات الجمود"
+
+msgid "Development (DEBUG on)"
+msgstr "تطوير (DEBUG مفعّل)"
+
+msgid "Disk (media volume)"
+msgstr "القرص (وحدة الوسائط)"
+
+msgid "Distinct files known to the upload de-duplication"
+msgstr "ملفات مميزة يعرفها منع التكرار عند الرفع"
+
+msgid "Django system checks"
+msgstr "فحوصات نظام Django"
+
+msgid "Duplicate copies"
+msgstr "نسخ مكررة"
+
+msgid "Duplicate-upload index"
+msgstr "فهرس منع تكرار الرفع"
+
+msgid "E-mail"
+msgstr "البريد الإلكتروني"
+
+msgid "Engine"
+msgstr "المحرك"
+
+msgid "Enquiry notifications are not being sent."
+msgstr "إشعارات الاستفسارات لا تُرسل."
+
+msgid "Environment"
+msgstr "البيئة"
+
+msgid "Errors in the last 24 hours"
+msgstr "الأخطاء خلال آخر 24 ساعة"
+
+msgid "Failed"
+msgstr "فشل"
+
+msgid "Files used by content"
+msgstr "الملفات المستخدمة في المحتوى"
+
+msgid "Healthy"
+msgstr "سليم"
+
+msgid "Host"
+msgstr "الخادم"
+
+msgid "Including the production security checks"
+msgstr "تشمل فحوصات أمان بيئة الإنتاج"
+
+msgid "Info"
+msgstr "معلومة"
+
+msgid "Largest tables"
+msgstr "أكبر الجداول"
+
+msgid "Latest errors"
+msgstr "أحدث الأخطاء"
+
+msgid "Logged since this process started; the full log is on the server."
+msgstr "مسجّلة منذ بدء هذه العملية؛ السجل الكامل على الخادم."
+
+msgid "Longest running query"
+msgstr "أطول استعلام قيد التشغيل"
+
+msgid "Media files"
+msgstr "ملفات الوسائط"
+
+msgid "Media folder"
+msgstr "مجلد الوسائط"
+
+msgid "Memory"
+msgstr "الذاكرة"
+
+msgid "Missing"
+msgstr "مفقود"
+
+msgid "Missing files"
+msgstr "الملفات المفقودة"
+
+msgid "No errors logged."
+msgstr "لا توجد أخطاء مسجّلة."
+
+msgid "No file is stored twice."
+msgstr "لا يوجد ملف مخزّن مرتين."
+
+msgid "No issues"
+msgstr "لا توجد مشكلات"
+
+msgid "None running"
+msgstr "لا يوجد"
+
+msgid "Not set"
+msgstr "غير مضبوط"
+
+msgid "Not writable"
+msgstr "غير قابل للكتابة"
+
+msgid "Open connections against the server's limit"
+msgstr "الاتصالات المفتوحة مقارنة بحد الخادم"
+
+msgid "Overdue"
+msgstr "متأخر"
+
+msgid "Problem"
+msgstr "مشكلة"
+
+msgid "Process memory"
+msgstr "ذاكرة العملية"
+
+msgid "Process uptime"
+msgstr "مدة تشغيل العملية"
+
+msgid "Public media URL"
+msgstr "الرابط العام للوسائط"
+
+msgid "Read / write"
+msgstr "القراءة / الكتابة"
+
+msgid "Recent errors"
+msgstr "الأخطاء الأخيرة"
+
+msgid "Request"
+msgstr "الطلب"
+
+msgid "Results are reused for %(ttl)s seconds so this page never adds load."
+msgstr "تُعاد النتائج لمدة %(ttl)s ثانية حتى لا تضيف هذه الصفحة أي حمل."
+
+msgid "Round trip of SELECT 1"
+msgstr "زمن الذهاب والعودة لـ SELECT 1"
+
+msgid "Run `manage.py index_media` so re-uploads of existing files are recognised."
+msgstr "شغّل `manage.py index_media` ليتم التعرف على إعادة رفع الملفات الموجودة."
+
+msgid "Run `manage.py migrate`: %(names)s"
+msgstr "شغّل `manage.py migrate`: %(names)s"
+
+msgid "Running, with %(n)d warning(s)"
+msgstr "يعمل، مع %(n)d تحذير"
+
+msgid "SHA-256"
+msgstr "SHA-256"
+
+msgid "Server"
+msgstr "الخادم"
+
+msgid "Set MEDIA_PUBLIC_BASE_URL so image links use the public address."
+msgstr "اضبط MEDIA_PUBLIC_BASE_URL لتستخدم روابط الصور العنوان العام."
+
+msgid "Share of reads served from memory; below 90% the database needs more RAM."
+msgstr "نسبة القراءات من الذاكرة؛ أقل من 90% تعني أن قاعدة البيانات تحتاج ذاكرة أكبر."
+
+msgid "Since statistics were last reset"
+msgstr "منذ آخر إعادة ضبط للإحصاءات"
+
+msgid "Size"
+msgstr "الحجم"
+
+msgid "Stored files"
+msgstr "الملفات المخزّنة"
+
+msgid "Sustained load above the CPU count (%(n)d) means requests queue."
+msgstr "الحمل المستمر فوق عدد المعالجات (%(n)d) يعني أن الطلبات تنتظر."
+
+msgid "System check findings"
+msgstr "نتائج فحوصات النظام"
+
+msgid "System status"
+msgstr "حالة النظام"
+
+msgid "Table"
+msgstr "الجدول"
+
+msgid "The server, database, cache and media all passed their checks."
+msgstr "الخادم وقاعدة البيانات والذاكرة المؤقتة والوسائط اجتازت كلها الفحوصات."
+
+msgid "Unused files"
+msgstr "ملفات غير مستخدمة"
+
+msgid "Up to date"
+msgstr "محدّث"
+
+msgid "Versions"
+msgstr "الإصدارات"
+
+msgid "Visits are kept for %(n)d days"
+msgstr "تُحفظ الزيارات لمدة %(n)d يومًا"
+
+msgid "Visits older than %(n)d days remain; schedule `manage.py prune_analytics` daily."
+msgstr "ما زالت هناك زيارات أقدم من %(n)d يومًا؛ جدول `manage.py prune_analytics` يوميًا."
+
+msgid "Warning"
+msgstr "تحذير"
+
+msgid "Writable"
+msgstr "قابل للكتابة"
+
+msgid "file"
+msgstr "الملف"
+
+msgid "size (bytes)"
+msgstr "الحجم (بايت)"
+
+msgid "stored file"
+msgstr "ملف مخزّن"
+
+msgid "stored files"
+msgstr "ملفات مخزّنة"
+
+msgid "%(n)d file(s) permanently deleted."
+msgstr "حُذف %(n)d ملف نهائيًا."
+
+msgid "%(n)d file(s) restored."
+msgstr "استُعيد %(n)d ملف."
+
+msgid "%(n)d file(s) were left in the trash because a file with the same name exists again."
+msgstr "بقي %(n)d ملف في سلة المحذوفات لأن ملفًا بالاسم نفسه موجود مجددًا."
+
+msgid "%(n)d unused file(s) (%(size)s) moved to the trash. Nothing was deleted; restore them below if anything is missing."
+msgstr "نُقل %(n)d ملف غير مستخدم (%(size)s) إلى سلة المحذوفات. لم يُحذف شيء؛ استعدها من الأسفل إذا فُقد أي شيء."
+
+msgid "%(size)s set aside by clean-ups; restore or delete them on the clean-up page."
+msgstr "%(size)s جانبًا من عمليات التنظيف؛ استعدها أو احذفها من صفحة التنظيف."
+
+msgid "By"
+msgstr "بواسطة"
+
+msgid "Clean up unused files"
+msgstr "تنظيف الملفات غير المستخدمة"
+
+msgid "Cleaned up"
+msgstr "تاريخ التنظيف"
+
+msgid "Delete permanently"
+msgstr "حذف نهائي"
+
+msgid "Each clean-up is kept here until you restore it or delete it permanently."
+msgstr "تُحفظ كل عملية تنظيف هنا حتى تستعيدها أو تحذفها نهائيًا."
+
+msgid "Every stored file is used by content. Nothing to clean up."
+msgstr "كل الملفات المخزّنة مستخدمة في المحتوى. لا يوجد ما يُنظّف."
+
+msgid "Files"
+msgstr "الملفات"
+
+msgid "Files no content uses, not even in text, and not changed in the last %(grace_minutes)s minutes."
+msgstr "ملفات لا يستخدمها أي محتوى، ولا حتى في النصوص، ولم تتغير خلال آخر %(grace_minutes)s دقيقة."
+
+msgid "Media clean-up"
+msgstr "تنظيف الوسائط"
+
+msgid "Move %(n)s file(s) to trash"
+msgstr "نقل %(n)s ملف إلى سلة المحذوفات"
+
+msgid "Move %(n)s unused file(s) (%(size)s) to the trash?"
+msgstr "نقل %(n)s ملف غير مستخدم (%(size)s) إلى سلة المحذوفات؟"
+
+msgid "Permanently delete %(n)s file(s)? This cannot be undone."
+msgstr "حذف %(n)s ملف نهائيًا؟ لا يمكن التراجع عن ذلك."
+
+msgid "Restore"
+msgstr "استعادة"
+
+msgid "That trash batch no longer exists."
+msgstr "هذه الدفعة لم تعد موجودة في سلة المحذوفات."
+
+msgid "The trash is empty."
+msgstr "سلة المحذوفات فارغة."
+
+msgid "There are no unused files to clean up."
+msgstr "لا توجد ملفات غير مستخدمة للتنظيف."
+
+msgid "Trash"
+msgstr "سلة المحذوفات"
+
+msgid "Unused files are moved to a trash folder, not deleted. You can restore any clean-up, or delete it for good once you are sure."
+msgstr "تُنقل الملفات غير المستخدمة إلى مجلد سلة المحذوفات ولا تُحذف. يمكنك استعادة أي عملية تنظيف، أو حذفها نهائيًا عندما تتأكد."
+
+msgid "file(s)"
+msgstr "ملف"
+
+msgid "…and %(more)s more."
+msgstr "…و%(more)s غيرها."

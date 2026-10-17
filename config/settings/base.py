@@ -150,8 +150,10 @@ MEDIA_ROOT = Path(env("DJANGO_MEDIA_ROOT", default=str(BASE_DIR / "media")))
 # and wrong behind an internal hostname — set it in production.
 MEDIA_PUBLIC_BASE_URL = env("MEDIA_PUBLIC_BASE_URL", default="")
 
+# Media: an upload identical to a stored file reuses it instead of adding a copy
+# (apps.core.storage; existing files are indexed with `manage.py index_media`).
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {"BACKEND": "apps.core.storage.DeduplicatingFileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
@@ -264,15 +266,20 @@ LOGGING = {
             "filters": ["request_id"],
             "formatter": LOG_FORMAT,
         },
+        # Errors only: feeds "Recent errors" on Admin → System status.
+        "recent_errors": {
+            "()": "apps.core.system_status.RecentErrorsHandler",
+            "filters": ["request_id"],
+        },
     },
-    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+    "root": {"handlers": ["console", "recent_errors"], "level": LOG_LEVEL},
     "loggers": {
-        "django": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+        "django": {"handlers": ["console", "recent_errors"], "level": LOG_LEVEL, "propagate": False},
         # Requests are logged by our own exception handler with the request id; Django's
         # duplicate 4xx/5xx lines add noise without context.
-        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
-        "apps": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
-        "config": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+        "django.request": {"handlers": ["console", "recent_errors"], "level": "ERROR", "propagate": False},
+        "apps": {"handlers": ["console", "recent_errors"], "level": LOG_LEVEL, "propagate": False},
+        "config": {"handlers": ["console", "recent_errors"], "level": LOG_LEVEL, "propagate": False},
     },
 }
 
@@ -406,6 +413,17 @@ UNFOLD = {
                 "items": [
                     {"title": _("Users"), "icon": "person", "link": reverse_lazy("admin:auth_user_changelist")},
                     {"title": _("Groups"), "icon": "group", "link": reverse_lazy("admin:auth_group_changelist")},
+                ],
+            },
+            {
+                "title": _("System"),
+                "items": [
+                    {
+                        "title": _("System status"),
+                        "icon": "monitor_heart",
+                        "link": reverse_lazy("admin-system-status"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
                 ],
             },
         ],
