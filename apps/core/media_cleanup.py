@@ -20,7 +20,7 @@ import re
 import secrets
 import shutil
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from django.conf import settings
@@ -43,6 +43,7 @@ _MEDIA_PATH = re.compile(r"[\w./-]+\.\w{2,5}")
 class UnusedFile:
     name: str
     size: int
+    modified: float = 0.0
 
 
 @dataclass
@@ -92,14 +93,30 @@ def protected_names() -> set[str]:
 
 
 def find_unused() -> list[UnusedFile]:
+    """Unused files that may be moved now."""
+    return unused_files()[0]
+
+
+def unused_files() -> tuple[list[UnusedFile], list[UnusedFile]]:
+    """(ready, waiting): unused files that may be moved now, and unused files changed
+    within GRACE, which are left alone until it has passed."""
     protected = protected_names()
     cutoff = (timezone.now() - GRACE).timestamp()
-    unused = []
+    ready, waiting = [], []
     for name, path in media_files():
+        if name in protected:
+            continue
         stat = path.stat()
-        if name not in protected and stat.st_mtime < cutoff:
-            unused.append(UnusedFile(name, stat.st_size))
-    return sorted(unused, key=lambda f: f.name)
+        f = UnusedFile(name, stat.st_size, stat.st_mtime)
+        (ready if stat.st_mtime < cutoff else waiting).append(f)
+    return sorted(ready, key=lambda f: f.name), sorted(waiting, key=lambda f: f.name)
+
+
+def ready_at(files: list[UnusedFile]):
+    """When the last of `files` leaves the grace period (an aware datetime), or None."""
+    if not files:
+        return None
+    return datetime.fromtimestamp(max(f.modified for f in files), tz=timezone.get_current_timezone()) + GRACE
 
 
 def move_unused_to_trash(user: str) -> TrashBatch | None:
@@ -200,8 +217,6 @@ def _read_batch(batch_dir: Path) -> TrashBatch | None:
         data = json.loads((batch_dir / MANIFEST).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    from datetime import datetime
-
     return TrashBatch(batch_dir.name, datetime.fromisoformat(data["created"]), data.get("user", ""), data["files"])
 
 

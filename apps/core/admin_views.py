@@ -73,7 +73,7 @@ class MediaCleanupView(TemplateView):
         return redirect("admin-media-cleanup")
 
     def get_context_data(self, **kwargs):
-        unused = media_cleanup.find_unused()
+        unused, waiting = media_cleanup.unused_files()
         return {
             **super().get_context_data(**kwargs),
             **admin.site.each_context(self.request),
@@ -82,6 +82,9 @@ class MediaCleanupView(TemplateView):
             "unused_count": len(unused),
             "unused_size": system_status.human_bytes(sum(f.size for f in unused)),
             "more": max(len(unused) - self.PREVIEW, 0),
+            "waiting_count": len(waiting),
+            "waiting_size": system_status.human_bytes(sum(f.size for f in waiting)),
+            "waiting_until": media_cleanup.ready_at(waiting),
             "batches": media_cleanup.trash_batches(),
             "grace_minutes": int(media_cleanup.GRACE.total_seconds() // 60),
             "status_url": reverse("admin-system-status"),

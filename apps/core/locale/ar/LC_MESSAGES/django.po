@@ -2192,3 +2192,6 @@ msgstr "ملف"
 
 msgid "…and %(more)s more."
 msgstr "…و%(more)s غيرها."
+
+msgid "%(n)s more unused file(s) (%(size)s) were changed in the last %(grace_minutes)s minutes, so they are protected for now. They can be cleaned up from %(t)s; reload this page then."
+msgstr "%(n)s ملف آخر غير مستخدم (%(size)s) تغيّر خلال آخر %(grace_minutes)s دقيقة، لذا فهو محمي حاليًا. يمكن تنظيفه بدءًا من الساعة %(t)s؛ أعد تحميل هذه الصفحة حينها."

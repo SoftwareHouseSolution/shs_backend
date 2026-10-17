@@ -30,6 +30,13 @@
                 </div>
             </header>
 
+            {% if waiting_count %}
+                <p class="swh-empty swh-cleanup__waiting">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span>{% blocktrans with n=waiting_count size=waiting_size t=waiting_until|time:"H:i" %}{{ n }} more unused file(s) ({{ size }}) were changed in the last {{ grace_minutes }} minutes, so they are protected for now. They can be cleaned up from {{ t }}; reload this page then.{% endblocktrans %}</span>
+                </p>
+            {% endif %}
+
             {% if unused_count %}
                 <form method="post" class="swh-cleanup__action" onsubmit="return confirm(this.dataset.confirm);"
                       data-confirm="{% blocktrans with n=unused_count size=unused_size %}Move {{ n }} unused file(s) ({{ size }}) to the trash?{% endblocktrans %}">
@@ -54,7 +61,7 @@
                     </table>
                 </div>
                 {% if more %}<p class="swh-card__sub swh-cleanup__more">{% blocktrans %}…and {{ more }} more.{% endblocktrans %}</p>{% endif %}
-            {% else %}
+            {% elif not waiting_count %}
                 <p class="swh-empty swh-empty--success"><span class="material-symbols-outlined">check_circle</span>{% trans "Every stored file is used by content. Nothing to clean up." %}</p>
             {% endif %}
         </section>

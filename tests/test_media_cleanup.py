@@ -162,3 +162,27 @@ def test_the_trash_can_live_outside_the_media_folder(media, settings, tmp_path_f
 
     assert media_cleanup.restore(batch.id) == (1, 0)
     assert (media / "clients" / "orphan.webp").read_bytes() == b"o"
+
+
+@pytest.mark.django_db
+def test_recently_changed_unused_files_are_explained_not_hidden(admin_client, media):
+    _put(media, "clients/old-orphan.webp")
+    _put(media, "clients/fresh-orphan.webp", old=False)
+
+    ready, waiting = media_cleanup.unused_files()
+    assert [f.name for f in ready] == ["clients/old-orphan.webp"]
+    assert [f.name for f in waiting] == ["clients/fresh-orphan.webp"]
+    assert media_cleanup.ready_at(waiting).timestamp() > time.time() + 3500
+
+    page = admin_client.get(URL)
+    assert page.context["unused_count"] == 1 and page.context["waiting_count"] == 1
+    assert b"protected for now" in page.content
+    assert b"Nothing to clean up" not in page.content
+
+
+@pytest.mark.django_db
+def test_only_waiting_files_never_claims_everything_is_used(admin_client, media):
+    _put(media, "clients/fresh-orphan.webp", old=False)
+    page = admin_client.get(URL)
+    assert b"protected for now" in page.content
+    assert b"Nothing to clean up" not in page.content

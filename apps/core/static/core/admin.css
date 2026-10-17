@@ -1839,3 +1839,17 @@ html.dark .swh-cleanup__summary {
   border-color: color-mix(in oklab, var(--swh-danger) 45%, transparent);
   background: color-mix(in oklab, var(--swh-danger) 7%, transparent);
 }
+.swh-cleanup__waiting {
+  margin-bottom: 16px;
+  border-style: solid;
+  border-color: color-mix(in oklab, var(--swh-warning) 35%, transparent);
+  background: color-mix(in oklab, var(--swh-warning) 7%, transparent);
+  color: var(--color-base-700);
+}
+html.dark .swh-cleanup__waiting {
+  border-color: color-mix(in oklab, var(--swh-warning) 35%, transparent);
+  color: var(--color-base-200);
+}
+.swh-cleanup__waiting .material-symbols-outlined {
+  color: var(--swh-warning);
+}
