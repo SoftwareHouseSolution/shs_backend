@@ -8,3 +8,7 @@ staticfiles/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Uploaded media belongs to a specific database; share it with a DB dump, not git.
+# Shared starter content lives in seed/ (python manage.py seed_content).
+media/
