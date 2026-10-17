@@ -1,6 +1,7 @@
 """Safe clean-up of media files that no content uses (Admin → System → Media clean-up).
 
-Nothing is deleted outright. A clean-up moves unused files into MEDIA_ROOT/.trash/<batch>/
+Nothing is deleted outright. A clean-up moves unused files into a trash batch
+(MEDIA_TRASH_ROOT, by default MEDIA_ROOT/.trash/<batch>/)
 with a manifest, and a batch can be restored or, later, deleted for good. A file counts as
 unused only when:
 
@@ -15,7 +16,6 @@ put straight back.
 """
 
 import json
-import os
 import re
 import secrets
 import shutil
@@ -62,6 +62,8 @@ class TrashBatch:
 
 
 def trash_root() -> Path:
+    if settings.MEDIA_TRASH_ROOT:
+        return Path(settings.MEDIA_TRASH_ROOT)
     return Path(settings.MEDIA_ROOT) / TRASH_DIR
 
 
@@ -114,7 +116,7 @@ def move_unused_to_trash(user: str) -> TrashBatch | None:
         target = batch_dir / f.name
         target.parent.mkdir(parents=True, exist_ok=True)
         try:
-            os.replace(root / f.name, target)
+            shutil.move(root / f.name, target)
         except FileNotFoundError:  # removed by someone else meanwhile
             continue
         moved.append({"name": f.name, "size": f.size})
@@ -123,7 +125,7 @@ def move_unused_to_trash(user: str) -> TrashBatch | None:
     protected = protected_names()
     back = [m for m in moved if m["name"] in protected]
     for m in back:
-        os.replace(batch_dir / m["name"], root / m["name"])
+        shutil.move(batch_dir / m["name"], root / m["name"])
     moved = [m for m in moved if m["name"] not in protected]
 
     from .models import StoredFile
@@ -161,7 +163,7 @@ def restore(batch_id: str) -> tuple[int, int]:
                 remaining.append(f)
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
-        os.replace(source, target)
+        shutil.move(source, target)
         restored += 1
         with target.open("rb") as fh:
             digest = content_digest(File(fh))

@@ -20,7 +20,17 @@ class Command(BaseCommand):
         "hand. Reads files only; never moves or deletes them."
     )
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--if-empty",
+            action="store_true",
+            help="Do nothing when the index already has entries (for container start-up).",
+        )
+
+    def handle(self, *args, if_empty=False, **options):
+        if if_empty and StoredFile.objects.exists():
+            self.stdout.write("  Media index already built; skipping.")
+            return
         referenced = referenced_media()
         groups: dict[str, list[tuple[str, int]]] = defaultdict(list)
         for name, path in media_files():

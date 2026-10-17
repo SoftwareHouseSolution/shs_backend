@@ -23,12 +23,16 @@ services:
     build: .
     restart: unless-stopped
     env_file: .env
-    environment:
+    image: shs-backend-web
+    environment: &app-env
       DATABASE_URL: postgres://shs_user:${POSTGRES_PASSWORD}@db:5432/shs_backend
       DJANGO_MEDIA_ROOT: /app/media
+      # Outside ./media, so nginx never serves files the media clean-up set aside.
+      DJANGO_MEDIA_TRASH_ROOT: /app/media-trash
     volumes:
       # Host folder so nginx can serve uploads directly at /media/.
       - ./media:/app/media
+      - media_trash:/app/media-trash
     ports:
       - "127.0.0.1:${WEB_PORT:-8320}:8000"
     depends_on:
@@ -36,8 +40,25 @@ services:
         condition: service_healthy
     networks: [internal]
 
+  # Daily housekeeping, same image: deletes visits older than ANALYTICS_RETENTION_DAYS.
+  # Its output (and failures) are in `docker compose logs scheduler`.
+  scheduler:
+    build: .
+    image: shs-backend-web
+    restart: unless-stopped
+    env_file: .env
+    environment: *app-env
+    command: ["sh", "-c", "while true; do python manage.py prune_analytics; sleep 86400; done"]
+    healthcheck:
+      disable: true
+    depends_on:
+      web:
+        condition: service_healthy
+    networks: [internal]
+
 volumes:
   db_data:
+  media_trash:
 
 networks:
   internal:

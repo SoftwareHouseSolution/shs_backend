@@ -136,6 +136,7 @@ are required. Full annotated list: `.env.example`.
 | `CACHE_URL` | local memory | `redis://…` in production (shared cache + rate limits) |
 | `CONTENT_CACHE_TIMEOUT` | `300` | Seconds an API payload is cached (edits invalidate immediately anyway) |
 | `DJANGO_MEDIA_ROOT` / `DJANGO_MEDIA_URL` | `./media`, `/media/` | Upload storage |
+| `DJANGO_MEDIA_TRASH_ROOT` | `<media root>/.trash` | Where the media clean-up sets unused files aside; keep it outside the served folder |
 | `MEDIA_PUBLIC_BASE_URL` | empty | Public origin for media URLs in API responses — **set in production** |
 | `MAX_IMAGE_UPLOAD_MB` / `MAX_VIDEO_UPLOAD_MB` | `8` / `60` | Upload limits |
 | `API_THROTTLE_ANON` | `600/min` | Global per-IP rate limit |
@@ -583,6 +584,24 @@ production: `DJANGO_SECRET_KEY`, `DATABASE_URL`, `DJANGO_ALLOWED_HOSTS`,
 `CORS_ALLOWED_ORIGINS` (the website), `CSRF_TRUSTED_ORIGINS` (the admin's HTTPS origin),
 `MEDIA_PUBLIC_BASE_URL`, `NUM_PROXIES`, SMTP settings, and ideally `CACHE_URL` (Redis —
 `pip install redis`) so the cache and rate limits are shared across workers.
+
+### Docker
+
+`compose.yml` runs three containers: `db` (PostgreSQL), `web` (gunicorn) and `scheduler`.
+
+```bash
+docker compose up -d --build        # first deploy and every update
+docker compose exec web python manage.py createsuperuser      # first deploy only
+docker compose exec web python manage.py seed_content         # first deploy only
+docker compose exec web python manage.py system_status        # full health report
+```
+
+On every start `web` applies migrations, indexes existing media for upload
+de-duplication the first time (`index_media --if-empty`), then starts gunicorn. Its
+`HEALTHCHECK` (`scripts/healthcheck.py`) calls `/api/v1/health/` every 30 s, so
+`docker compose ps` shows `healthy` or `unhealthy`. `scheduler` runs `prune_analytics`
+once a day. Files set aside by the media clean-up go to the `media_trash` volume, outside
+`./media`, so nginx never serves them.
 
 ### Media
 

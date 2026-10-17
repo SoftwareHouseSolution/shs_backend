@@ -149,3 +149,16 @@ def test_editors_cannot_clean_up(client, django_user_model, media):
     client.force_login(django_user_model.objects.create_user("editor", password="x", is_staff=True))
     assert client.post(URL, {"action": "clean"}).status_code == 403
     assert (media / "clients" / "orphan.webp").exists()
+
+
+@pytest.mark.django_db
+def test_the_trash_can_live_outside_the_media_folder(media, settings, tmp_path_factory):
+    settings.MEDIA_TRASH_ROOT = trash = tmp_path_factory.mktemp("trash")
+    _put(media, "clients/orphan.webp", b"o")
+
+    batch = media_cleanup.move_unused_to_trash("admin")
+    assert (trash / batch.id / "clients" / "orphan.webp").read_bytes() == b"o"
+    assert not (media / ".trash").exists()
+
+    assert media_cleanup.restore(batch.id) == (1, 0)
+    assert (media / "clients" / "orphan.webp").read_bytes() == b"o"

@@ -80,3 +80,16 @@ def test_index_media_prefers_the_copy_content_uses(settings, tmp_path):
 
     assert StoredFile.objects.count() == 2
     assert StoredFile.objects.filter(name="partners/used.svg").exists()
+
+
+@pytest.mark.django_db
+def test_index_media_if_empty_runs_only_once(settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    (tmp_path / "a.svg").write_bytes(SVG)
+    call_command("index_media", "--if-empty", stdout=io.StringIO())
+    assert StoredFile.objects.count() == 1
+
+    (tmp_path / "b.svg").write_bytes(SVG + b" ")
+    out = io.StringIO()
+    call_command("index_media", "--if-empty", stdout=out)
+    assert StoredFile.objects.count() == 1 and "skipping" in out.getvalue()

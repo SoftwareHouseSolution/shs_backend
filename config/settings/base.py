@@ -149,6 +149,10 @@ MEDIA_ROOT = Path(env("DJANGO_MEDIA_ROOT", default=str(BASE_DIR / "media")))
 # unset, URLs are built from the incoming request's host, which is right in development
 # and wrong behind an internal hostname — set it in production.
 MEDIA_PUBLIC_BASE_URL = env("MEDIA_PUBLIC_BASE_URL", default="")
+# Where Admin → System status → Clean up unused files sets files aside. Empty: a hidden
+# MEDIA_ROOT/.trash (then deny /media/.trash/ in the web server). Docker uses a separate
+# volume, so the web server never sees it.
+MEDIA_TRASH_ROOT = env("DJANGO_MEDIA_TRASH_ROOT", default="")
 
 # Media: an upload identical to a stored file reuses it instead of adding a copy
 # (apps.core.storage; existing files are indexed with `manage.py index_media`).
