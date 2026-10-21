@@ -11,7 +11,7 @@ from unfold.decorators import action, display
 from apps.core.admin_utils import PlainAdmin, image_tag
 
 from .models import Review
-from .services import PublishRefused, publish
+from .services import PublishRefused, publish, withdraw
 
 
 def new_review_badge(request):
@@ -50,6 +50,36 @@ class ReviewAdmin(PlainAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "status":
+            field.help_text = _(
+                "Published puts the review on the website (Testimonials page) when you save; "
+                "New or Archived takes it off. Publishing needs the client's consent."
+            )
+        return field
+
+    def save_model(self, request, obj, form, change):
+        """The status list does what it says: choosing Published and saving publishes the
+        review, choosing anything else takes it off the website."""
+        super().save_model(request, obj, form, change)
+        if "status" not in form.changed_data:
+            return
+        if obj.status == Review.Status.PUBLISHED:
+            try:
+                publish(obj)
+                self.message_user(request, _("The review is now on the website."), messages.SUCCESS)
+            except PublishRefused:
+                obj.status = form.initial.get("status") or Review.Status.NEW
+                obj.save(update_fields=["status", "updated_at"])
+                self.message_user(
+                    request,
+                    _("This review cannot be published: the client did not agree to publication."),
+                    messages.ERROR,
+                )
+        elif withdraw(obj):
+            self.message_user(request, _("The review was taken off the website."), messages.WARNING)
 
     # ── Columns and read-only fields ─────────────────────────────────────────────────
 

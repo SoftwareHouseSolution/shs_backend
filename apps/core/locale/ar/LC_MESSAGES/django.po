@@ -2416,3 +2416,12 @@ msgstr "مدة استخدام البرنامج"
 
 msgid "In their own words"
 msgstr "بكلامه"
+
+msgid "Published puts the review on the website (Testimonials page) when you save; New or Archived takes it off. Publishing needs the client's consent."
+msgstr "اختيار «منشور» ثم الحفظ ينشر التقييم على الموقع (صفحة آراء العملاء)؛ واختيار «جديد» أو «مؤرشف» يزيله منه. النشر يحتاج موافقة العميل."
+
+msgid "The review is now on the website."
+msgstr "التقييم منشور الآن على الموقع."
+
+msgid "The review was taken off the website."
+msgstr "تمت إزالة التقييم من الموقع."

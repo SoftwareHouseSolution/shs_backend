@@ -79,11 +79,19 @@ class ReviewService:
 
 def publish(review: Review) -> Testimonial:
     """Turn a review into a published testimonial on the website. Idempotent: a review that
-    already has its testimonial returns it. Refused when the client did not consent."""
-    if review.testimonial_id:
-        return review.testimonial
+    already has its testimonial makes sure it is shown again and returns it. Refused when
+    the client did not consent."""
     if not review.consent:
         raise PublishRefused(review)
+    if review.testimonial_id:
+        testimonial = review.testimonial
+        if not testimonial.is_published:
+            testimonial.is_published = True
+            testimonial.save(update_fields=["is_published", "updated_at"])
+        if review.status != Review.Status.PUBLISHED:
+            review.status = Review.Status.PUBLISHED
+            review.save(update_fields=["status", "updated_at"])
+        return testimonial
     lang = review.language if review.language in ("en", "ar") else "ar"
     with transaction.atomic():
         # Newest first: the new testimonial takes the top slot and the rest move down one,
@@ -100,3 +108,15 @@ def publish(review: Review) -> Testimonial:
         review.status = Review.Status.PUBLISHED
         review.save(update_fields=["testimonial", "status", "updated_at"])
     return testimonial
+
+
+def withdraw(review: Review) -> bool:
+    """Take a published review off the website (its testimonial is hidden, not deleted, so
+    publishing again restores it with any wording an editor polished). True when something
+    was hidden."""
+    testimonial = review.testimonial if review.testimonial_id else None
+    if testimonial is None or not testimonial.is_published:
+        return False
+    testimonial.is_published = False
+    testimonial.save(update_fields=["is_published", "updated_at"])
+    return True

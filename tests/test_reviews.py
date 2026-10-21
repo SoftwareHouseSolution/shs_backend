@@ -245,3 +245,60 @@ def test_a_newly_published_review_is_listed_first(api):
     publish(_review(shop_name="Newest shop", text=TEXT + " جديد"))
     data = api.get("/api/v1/testimonials/?lang=ar").json()["data"]
     assert data[0]["quote"] == TEXT + " جديد" and data[1]["quote"] == TEXT
+
+
+# ── The status list in the review form ───────────────────────────────────────────────
+
+
+def _save_status(admin_client, review, status):
+    return admin_client.post(
+        reverse("admin:reviews_review_change", args=[review.pk]),
+        {"status": status, "internal_notes": "", "_save": "Save"},
+        follow=True,
+    )
+
+
+def test_choosing_published_and_saving_publishes(admin_client):
+    review = _review()
+    _save_status(admin_client, review, "published")
+    review.refresh_from_db()
+    assert review.status == Review.Status.PUBLISHED and review.testimonial.is_published
+
+
+def test_choosing_published_without_consent_is_refused(admin_client):
+    review = _review(consent=False)
+    response = _save_status(admin_client, review, "published")
+    review.refresh_from_db()
+    assert review.status == Review.Status.NEW and review.testimonial_id is None
+    assert "did not agree" in response.content.decode()
+
+
+def test_archiving_a_published_review_hides_it_and_publishing_restores_it(admin_client):
+    review = _review()
+    testimonial = publish(review)
+    _save_status(admin_client, review, "archived")
+    testimonial.refresh_from_db()
+    assert not testimonial.is_published
+    _save_status(admin_client, review, "published")
+    testimonial.refresh_from_db()
+    review.refresh_from_db()
+    assert testimonial.is_published and review.testimonial_id == testimonial.pk
+
+
+def test_the_repair_migration_publishes_reviews_marked_published():
+    import importlib
+
+    from django.apps import apps
+
+    repair = importlib.import_module("apps.reviews.migrations.0002_publish_reviews_marked_published")
+    marked = _review(status=Review.Status.PUBLISHED, photo="reviews/shop.jpg")
+    private = _review(status=Review.Status.PUBLISHED, consent=False, shop_name="Private shop")
+
+    repair.publish_marked_reviews(apps, None)
+
+    marked.refresh_from_db()
+    private.refresh_from_db()
+    assert marked.testimonial.is_published and marked.testimonial.quote_ar == TEXT
+    assert marked.testimonial.author_company_ar == "مجوهرات النور — الصاغة – الموسكي، القاهرة"
+    assert marked.testimonial.order == 0 and marked.testimonial.avatar.name == "reviews/shop.jpg"
+    assert private.status == Review.Status.NEW and private.testimonial_id is None
