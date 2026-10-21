@@ -2195,3 +2195,224 @@ msgstr "…و%(more)s غيرها."
 
 msgid "%(n)s more unused file(s) (%(size)s) were changed in the last %(grace_minutes)s minutes, so they are protected for now. They can be cleaned up from %(t)s; reload this page then."
 msgstr "%(n)s ملف آخر غير مستخدم (%(size)s) تغيّر خلال آخر %(grace_minutes)s دقيقة، لذا فهو محمي حاليًا. يمكن تنظيفه بدءًا من الساعة %(t)s؛ أعد تحميل هذه الصفحة حينها."
+
+# ── Client reviews ────────────────────────────────────────────────────────────────
+
+msgid "%(n)d review(s) archived."
+msgstr "تمت أرشفة %(n)d تقييم."
+
+msgid "%(n)d review(s) published on the website."
+msgstr "نُشر %(n)d تقييم على الموقع."
+
+msgid "%(n)d review(s) were not published: the client did not agree to publication."
+msgstr "لم يُنشر %(n)d تقييم: العميل لم يوافق على النشر."
+
+msgid "1–3 years"
+msgstr "من سنة إلى ٣ سنوات"
+
+msgid "3–5 years"
+msgstr "من ٣ إلى ٥ سنوات"
+
+msgid "5–10 years"
+msgstr "من ٥ إلى ١٠ سنوات"
+
+msgid "Across %(n)s reviews"
+msgstr "من خلال %(n)s تقييم"
+
+msgid "After sending a review, clients are offered to post it here too (e.g. the Ahl El-Sagha group post). Leave empty to hide that step."
+msgstr "بعد إرسال التقييم، يُعرض على العميل نشره هنا أيضًا (مثل بوست جروب أهل الصاغة). اتركه فارغًا لإخفاء هذه الخطوة."
+
+msgid "All reviews"
+msgstr "كل التقييمات"
+
+msgid "Answers"
+msgstr "الإجابات"
+
+msgid "Archive (keep private)"
+msgstr "أرشفة (بدون نشر)"
+
+msgid "Archived"
+msgstr "مؤرشف"
+
+msgid "Benefit codes."
+msgstr "رموز الفوائد."
+
+msgid "Branch monitoring"
+msgstr "متابعة الفروع"
+
+msgid "Client"
+msgstr "العميل"
+
+msgid "Client reviews"
+msgstr "تقييمات العملاء"
+
+msgid "Customer and trader accounts"
+msgstr "حسابات العملاء والتجار"
+
+msgid "Daily reports"
+msgstr "التقارير اليومية"
+
+msgid "Each benefit can be chosen once."
+msgstr "كل اختيار يُحدد مرة واحدة فقط."
+
+msgid "Excellent"
+msgstr "ممتاز"
+
+msgid "Facebook post for reviews"
+msgstr "بوست فيسبوك للتقييمات"
+
+msgid "Follow up"
+msgstr "متابعة"
+
+msgid "From the website's review page"
+msgstr "من صفحة التقييم على الموقع"
+
+msgid "Good"
+msgstr "جيد"
+
+msgid "Helped with"
+msgstr "ساعده في"
+
+msgid "Inventory"
+msgstr "الجرد"
+
+msgid "Invoices"
+msgstr "الفواتير"
+
+msgid "Latest reviews"
+msgstr "أحدث التقييمات"
+
+msgid "Less than a year"
+msgstr "أقل من سنة"
+
+msgid "More than 10 years"
+msgstr "أكثر من ١٠ سنوات"
+
+msgid "Need follow-up"
+msgstr "تحتاج متابعة"
+
+msgid "Needs improvement"
+msgstr "يحتاج تحسين"
+
+msgid "No reviews yet. Share the review page link with your clients: /ar/review"
+msgstr "لا توجد تقييمات بعد. شارك رابط صفحة التقييم مع عملائك: ‎/ar/review"
+
+msgid "Open the published testimonial"
+msgstr "فتح الرأي المنشور"
+
+msgid "Place"
+msgstr "المكان"
+
+msgid "Publish as testimonial"
+msgstr "نشر كرأي عميل"
+
+msgid "Published"
+msgstr "منشور"
+
+msgid "Published on the site"
+msgstr "منشورة على الموقع"
+
+msgid "Published. You can edit the testimonial's wording here."
+msgstr "تم النشر. يمكنك تعديل صياغة الرأي من هنا."
+
+msgid "Rate support excellent"
+msgstr "يقيّمون الدعم بممتاز"
+
+msgid "Reference"
+msgstr "المرجع"
+
+msgid "Review"
+msgstr "التقييم"
+
+msgid "Reviews received"
+msgstr "التقييمات المستلمة"
+
+msgid "Shop photo"
+msgstr "صورة المحل"
+
+msgid "Support"
+msgstr "الدعم"
+
+msgid "Technical support"
+msgstr "الدعم الفني"
+
+msgid "Testimonial"
+msgstr "رأي العميل"
+
+msgid "Thank you! Your review has reached us. It means a lot to us."
+msgstr "شكراً ليك! الريفيو وصلنا، وده يفرق معانا جداً."
+
+msgid "The ?src= tag of the link the client opened, e.g. facebook."
+msgstr "وسم ?src= في الرابط الذي فتحه العميل، مثل facebook."
+
+msgid "The breakdown appears with the first review."
+msgstr "يظهر التحليل مع أول تقييم."
+
+msgid "The system helped them with"
+msgstr "البرنامج ساعدهم في"
+
+msgid "This review cannot be published: the client did not agree to publication."
+msgstr "لا يمكن نشر هذا التقييم: العميل لم يوافق على النشر."
+
+msgid "Updates"
+msgstr "التحديثات"
+
+msgid "Waiting for you"
+msgstr "في انتظارك"
+
+msgid "We have already received this review. Thank you!"
+msgstr "الريفيو ده وصلنا قبل كده. شكراً ليك!"
+
+msgid "Weights and karats"
+msgstr "الأوزان والعيارات"
+
+msgid "What clients say"
+msgstr "آراء العملاء"
+
+msgid "Workmanship and hallmarking"
+msgstr "المصنعيات والدمغة"
+
+msgid "area"
+msgstr "المنطقة"
+
+msgid "client review"
+msgstr "تقييم عميل"
+
+msgid "client reviews"
+msgstr "تقييمات العملاء"
+
+msgid "governorate"
+msgstr "المحافظة"
+
+msgid "helped with"
+msgstr "ساعده في"
+
+msgid "in their own words"
+msgstr "بكلامه"
+
+msgid "may be published"
+msgstr "موافق على النشر"
+
+msgid "review"
+msgstr "التقييم"
+
+msgid "shop"
+msgstr "المحل"
+
+msgid "shop photo"
+msgstr "صورة المحل"
+
+msgid "source"
+msgstr "المصدر"
+
+msgid "technical support"
+msgstr "الدعم الفني"
+
+msgid "updates"
+msgstr "التحديثات"
+
+msgid "using the system for"
+msgstr "مدة استخدام البرنامج"
+
+msgid "In their own words"
+msgstr "بكلامه"

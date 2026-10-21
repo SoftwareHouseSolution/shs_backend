@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "apps.clients",
     "apps.events",
     "apps.enquiries",
+    "apps.reviews",
     "apps.analytics",
 ]
 
@@ -189,6 +190,7 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": env("API_THROTTLE_ANON", default="600/min"),
         "enquiries": env("API_THROTTLE_ENQUIRIES", default="5/hour"),
+        "reviews": env("API_THROTTLE_REVIEWS", default="5/hour"),
         # A page reports on open, every 15s while visible, and on leave.
         "analytics": env("API_THROTTLE_ANALYTICS", default="120/min"),
     },
@@ -224,6 +226,8 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "ENUM_NAME_OVERRIDES": {
         "ResponseCodeEnum": "apps.core.codes.ResponseCode",
+        # Support and updates share one rating scale.
+        "ReviewRatingEnum": "apps.reviews.models.ReviewRating",
     },
 }
 
@@ -234,6 +238,8 @@ ENQUIRY_NOTIFIER = env(
     "ENQUIRY_NOTIFIER", default="apps.enquiries.notifiers.EmailEnquiryNotifier"
 )
 ENQUIRY_NOTIFICATION_EMAIL = env("ENQUIRY_NOTIFICATION_EMAIL", default="")
+# Who is told about a new client review (apps.reviews.notifiers); same address as enquiries.
+REVIEW_NOTIFIER = env("REVIEW_NOTIFIER", default="apps.reviews.notifiers.EmailReviewNotifier")
 # A second identical enquiry from the same address inside this window is a 409.
 ENQUIRY_DUPLICATE_WINDOW_MINUTES = env.int("ENQUIRY_DUPLICATE_WINDOW_MINUTES", default=10)
 
@@ -396,6 +402,12 @@ UNFOLD = {
                         "icon": "inbox",
                         "link": reverse_lazy("admin:enquiries_enquiry_changelist"),
                         "badge": "apps.enquiries.admin.new_enquiry_badge",
+                    },
+                    {
+                        "title": _("Client reviews"),
+                        "icon": "reviews",
+                        "link": reverse_lazy("admin:reviews_review_changelist"),
+                        "badge": "apps.reviews.admin.new_review_badge",
                     },
                 ],
             },

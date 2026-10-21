@@ -21,6 +21,7 @@ class SiteSettingsAdmin(SingletonAdminMixin, ContentAdmin):
         (_("Brand"), {"fields": ["short_name", "since_year", ("logo_on_light", "logo_light_preview"), ("logo_on_dark", "logo_dark_preview"), ("favicon", "favicon_preview"), "og_image"]}),
         (_("Contact"), {"fields": ["phone_display", "phone_link", "whatsapp_url", "sales_email", "careers_email", "enquiry_notification_email"]}),
         (_("Buttons and footer"), {"fields": ["primary_cta_url", "copyright_year", "updated_at"]}),
+        (_("Client reviews"), {"fields": ["review_share_url"]}),
         *translated_fieldsets(
             translated=["site_name", "address", "primary_cta_label", "footer_blurb", "rights_text", "contact_heading", "contact_body", "contact_cta_label", "default_meta_title", "default_meta_description"],
         ),

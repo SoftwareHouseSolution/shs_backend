@@ -33,6 +33,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             "phone_display",
             "phone_link",
             "whatsapp_url",
+            "review_share_url",
             "sales_email",
             "careers_email",
             "address",

@@ -19,6 +19,17 @@ from .models import Enquiry
 logger = logging.getLogger("apps.enquiries")
 
 
+def team_notification_address() -> str | None:
+    """Where the team is told about website submissions: Site settings → "Send enquiries
+    to", else ENQUIRY_NOTIFICATION_EMAIL. Shared with client reviews."""
+    from apps.site_config.models import SiteSettings
+
+    configured = SiteSettings.objects.filter(pk=SiteSettings.SINGLETON_PK).values_list(
+        "enquiry_notification_email", flat=True
+    ).first()
+    return configured or settings.ENQUIRY_NOTIFICATION_EMAIL or None
+
+
 class EnquiryNotifier(Protocol):
     def notify(self, enquiry: Enquiry) -> None: ...
 
@@ -35,14 +46,7 @@ class EmailEnquiryNotifier:
         self._recipient = recipient
 
     def _resolve_recipient(self) -> str | None:
-        if self._recipient:
-            return self._recipient
-        from apps.site_config.models import SiteSettings
-
-        configured = SiteSettings.objects.filter(pk=SiteSettings.SINGLETON_PK).values_list(
-            "enquiry_notification_email", flat=True
-        ).first()
-        return configured or settings.ENQUIRY_NOTIFICATION_EMAIL or None
+        return self._recipient or team_notification_address()
 
     def notify(self, enquiry: Enquiry) -> None:
         recipient = self._resolve_recipient()

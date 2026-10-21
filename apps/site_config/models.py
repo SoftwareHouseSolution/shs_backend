@@ -78,6 +78,14 @@ class SiteSettings(SingletonModel, TimeStampedModel):
         blank=True,
         help_text=_("Where new website enquiries are e-mailed. Falls back to the server setting."),
     )
+    review_share_url = models.URLField(
+        _("Facebook post for reviews"),
+        blank=True,
+        help_text=_(
+            "After sending a review, clients are offered to post it here too (e.g. the Ahl El-Sagha group post). "
+            "Leave empty to hide that step."
+        ),
+    )
 
     class Meta:
         verbose_name = _("site settings")

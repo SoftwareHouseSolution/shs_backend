@@ -127,6 +127,91 @@
             </section>
         </div>
 
+        {# ── Client reviews: see apps.reviews.reports ────────────────────────── #}
+        <div class="swh-heading">
+            <h2>{% trans "Client reviews" %}</h2>
+            <a class="swh-link swh-heading__action" href="{% url 'admin:reviews_review_changelist' %}">{% trans "All reviews" %} <span class="swh-arrow">{% if LANGUAGE_BIDI %}←{% else %}→{% endif %}</span></a>
+        </div>
+
+        <div class="swh-card swh-strip">
+            {% for kpi in review_kpis %}
+                <a class="swh-strip__item" href="{{ kpi.link }}">
+                    <span class="swh-strip__label"><span class="material-symbols-outlined">{{ kpi.icon }}</span>{{ kpi.title }}</span>
+                    <span class="swh-strip__value">{{ kpi.value }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="swh-grid swh-grid--2-1">
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">reviews</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "Latest reviews" %}</h2>
+                        <p class="swh-card__sub">{% trans "From the website's review page" %}</p>
+                    </div>
+                </header>
+                {% if latest_reviews %}
+                    <ul class="swh-list">
+                        {% for row in latest_reviews %}
+                            <li>
+                                <a href="{{ row.url }}" class="swh-list__row">
+                                    <span class="swh-avatar">{{ row.review.shop_name|slice:":1"|upper }}</span>
+                                    <span class="swh-list__main">
+                                        <span class="swh-list__title">{{ row.review.shop_name }} · {{ row.review.author_name }}</span>
+                                        <span class="swh-list__meta" dir="auto">{{ row.review.text|truncatechars:110 }}</span>
+                                    </span>
+                                    {% if row.review.needs_follow_up %}<span class="swh-pill swh-pill--danger">{% trans "Follow up" %}</span>{% endif %}
+                                    <span class="swh-pill swh-pill--{{ row.tone }}">{{ row.review.get_status_display }}</span>
+                                    <span class="swh-list__time">{{ row.review.created_at|date:"j M, H:i" }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">rate_review</span>{% trans "No reviews yet. Share the review page link with your clients: /ar/review" %}</p>
+                {% endif %}
+            </section>
+
+            <section class="swh-card">
+                <header class="swh-card__head">
+                    <span class="swh-card__icon material-symbols-outlined">sentiment_satisfied</span>
+                    <div>
+                        <h2 class="swh-card__title">{% trans "What clients say" %}</h2>
+                        <p class="swh-card__sub">{% blocktrans with n=review_total %}Across {{ n }} reviews{% endblocktrans %}</p>
+                    </div>
+                </header>
+                {% if review_total %}
+                    <p class="swh-section-label">{% trans "Technical support" %}</p>
+                    {% for r in review_support %}
+                        <a class="swh-share" href="{{ r.link }}">
+                            <span class="swh-share__label">{{ r.label }}</span>
+                            <span class="swh-share__value">{{ r.count }} <small>{{ r.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--{{ r.tone }}" style="width: {{ r.pct }}%"></span></div>
+                        </a>
+                    {% endfor %}
+                    <p class="swh-section-label">{% trans "Updates" %}</p>
+                    {% for r in review_updates %}
+                        <a class="swh-share" href="{{ r.link }}">
+                            <span class="swh-share__label">{{ r.label }}</span>
+                            <span class="swh-share__value">{{ r.count }} <small>{{ r.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--{{ r.tone }}" style="width: {{ r.pct }}%"></span></div>
+                        </a>
+                    {% endfor %}
+                    <p class="swh-section-label">{% trans "The system helped them with" %}</p>
+                    {% for b in review_benefits %}
+                        <div class="swh-share">
+                            <span class="swh-share__label">{{ b.label }}</span>
+                            <span class="swh-share__value">{{ b.count }} <small>{{ b.pct }}%</small></span>
+                            <div class="swh-track"><span class="swh-bg--teal" style="width: {{ b.bar }}%"></span></div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="swh-empty"><span class="material-symbols-outlined">query_stats</span>{% trans "The breakdown appears with the first review." %}</p>
+                {% endif %}
+            </section>
+        </div>
+
         {# ── Visitors: see apps.analytics ────────────────────────────────────── #}
         <div class="swh-heading">
             <h2>{% trans "Visitors" %}</h2>

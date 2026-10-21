@@ -141,6 +141,8 @@ are required. Full annotated list: `.env.example`.
 | `MAX_IMAGE_UPLOAD_MB` / `MAX_VIDEO_UPLOAD_MB` | `8` / `60` | Upload limits |
 | `API_THROTTLE_ANON` | `600/min` | Global per-IP rate limit |
 | `API_THROTTLE_ENQUIRIES` | `5/hour` | Per-IP contact-form submissions |
+| `API_THROTTLE_REVIEWS` | `5/hour` | Per-IP client-review submissions |
+| `REVIEW_NOTIFIER` | `…EmailReviewNotifier` | Who hears about new reviews (`NullReviewNotifier` disables) |
 | `API_THROTTLE_ANALYTICS` | `120/min` | Per-IP page-view reports |
 | `ANALYTICS_RETENTION_DAYS` | `180` | Visits older than this are removed by `prune_analytics` |
 | `NUM_PROXIES` | `0` | Reverse proxies in front (for client IPs in rate limiting) |
@@ -190,6 +192,7 @@ backend/
 │   ├── clients/              # clients, regions (map pins), sectors, business types
 │   ├── events/               # news & events with photos
 │   ├── enquiries/            # contact-form submissions: service, notifiers (adapters)
+│   ├── reviews/              # client reviews from /<lang>/review: inbox, publish → testimonial
 │   └── analytics/            # anonymous visits: page flow and time on page; dashboard reports
 ├── templates/admin/index.html  # admin dashboard
 ├── seed/content.json + seed/media/
@@ -273,6 +276,20 @@ Global Privacy Control are not counted, nor are bots. Schedule
 `python manage.py prune_analytics` daily to delete visits older than
 `ANALYTICS_RETENTION_DAYS`.
 
+**Client reviews.** Clients review the system at `/ar/review` (or `/en/review`) on the
+website — share it as e.g. `https://softwarehouse-sol.com/ar/review?src=facebook`; the
+`src` tag is recorded so you can see which channel brought each review. Three short steps
+(who they are, four tapped answers, a drafted review they can edit) and the review lands in
+**Inbox → Client reviews**, with a badge for new ones and an e-mail to the enquiries address
+(subject prefixed `FOLLOW UP:` when support or updates were rated "needs improvement").
+Open a review and click **Publish as testimonial** (or select several and use the bulk
+action) to put it on the site; only reviews whose author ticked the consent box can be
+published. **Archive** keeps a review private. The dashboard's *Client reviews* section
+counts reviews, those waiting for you and those needing follow-up, and breaks down the
+support and update ratings and what the system helped clients with. After sending, a client
+is offered to also post the review on Facebook: set the post in **Site settings → Client
+reviews** (empty hides that step).
+
 **System status** (superusers only, **System → System status**) checks the application
 (environment, uptime, memory, unapplied migrations), the server (CPU load, memory and disk
 where the OS reports them), PostgreSQL (latency, size, connections, long-running queries,
@@ -321,6 +338,7 @@ Base URL: `/api/v1/`. Public, anonymous, JSON only.
 | GET | `/testimonials/` | published testimonials | paginated |
 | GET | `/partners/` | `{name, logo, website, category}` | paginated; `?category=technology\|business` |
 | POST | `/enquiries/` | `{reference, created_at}` (201) | contact form; JSON body; rate-limited |
+| POST | `/reviews/` | `{reference, created_at}` (201) | client review page; multipart (optional `photo`), `benefits` repeated; rate-limited |
 | POST | `/analytics/collect/` | `null` (202) | page-view report from the site's tracker; JSON or `text/plain` (sendBeacon); idempotent per `view_id`; bots dropped; rate-limited |
 
 Media fields are absolute URLs. Internal link fields are locale-free paths (see *Links*).
@@ -451,6 +469,7 @@ Unexpected failure → **500** (nothing about the cause is exposed):
 | `CONTENT_LIST_RETRIEVED` | 200 | List (paginated) |
 | `HEALTH_OK` | 200 | `/health/` |
 | `ENQUIRY_CREATED` | 201 | Enquiry stored |
+| `REVIEW_CREATED` | 201 | Client review stored |
 | `ANALYTICS_EVENT_ACCEPTED` | 202 | Page-view report accepted (also for dropped bot traffic) |
 | `VALIDATION_ERROR` | 400 | Field validation failed — see `errors` |
 | `MALFORMED_REQUEST` | 400 | Body is not valid JSON |
@@ -463,6 +482,7 @@ Unexpected failure → **500** (nothing about the cause is exposed):
 | `NOT_ACCEPTABLE` | 406 | |
 | `RESOURCE_CONFLICT` | 409 | Conflicting state (database integrity) |
 | `DUPLICATE_ENQUIRY` | 409 | Same message from the same e-mail inside the window |
+| `DUPLICATE_REVIEW` | 409 | Same review text from the same shop inside the window |
 | `UNSUPPORTED_MEDIA_TYPE` | 415 | Body not JSON |
 | `BUSINESS_RULE_VIOLATION` | 422 | Well-formed request breaking a domain rule |
 | `RATE_LIMIT_EXCEEDED` | 429 | `meta.retry_after` + `Retry-After` header |

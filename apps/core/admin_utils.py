@@ -280,9 +280,16 @@ def dashboard_callback(request, context):
             "translated_pct": translated_pct,
             "content_blocks": PageBlock.objects.count(),
             **_visitor_context(),
+            **_review_context(),
         }
     )
     return context
+
+def _review_context() -> dict:
+    from apps.reviews.reports import dashboard_context
+
+    return dashboard_context()
+
 
 # A long visit's path is cut here on the dashboard; the visit's own page shows all of it.
 RECENT_VISIT_STEPS = 8

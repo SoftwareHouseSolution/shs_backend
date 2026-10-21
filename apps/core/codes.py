@@ -18,6 +18,7 @@ class ResponseCode(StrEnum):
     CONTENT_RETRIEVED = "CONTENT_RETRIEVED"
     CONTENT_LIST_RETRIEVED = "CONTENT_LIST_RETRIEVED"
     ENQUIRY_CREATED = "ENQUIRY_CREATED"
+    REVIEW_CREATED = "REVIEW_CREATED"
     ANALYTICS_EVENT_ACCEPTED = "ANALYTICS_EVENT_ACCEPTED"
     HEALTH_OK = "HEALTH_OK"
 
@@ -34,6 +35,7 @@ class ResponseCode(StrEnum):
     UNSUPPORTED_MEDIA_TYPE = "UNSUPPORTED_MEDIA_TYPE"
     RESOURCE_CONFLICT = "RESOURCE_CONFLICT"
     DUPLICATE_ENQUIRY = "DUPLICATE_ENQUIRY"
+    DUPLICATE_REVIEW = "DUPLICATE_REVIEW"
     BUSINESS_RULE_VIOLATION = "BUSINESS_RULE_VIOLATION"
     RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED"
 
@@ -47,6 +49,7 @@ DEFAULT_MESSAGES = {
     ResponseCode.CONTENT_RETRIEVED: _("Content retrieved successfully."),
     ResponseCode.CONTENT_LIST_RETRIEVED: _("Content retrieved successfully."),
     ResponseCode.ENQUIRY_CREATED: _("Thank you — your message has been received. We will be in touch soon."),
+    ResponseCode.REVIEW_CREATED: _("Thank you! Your review has reached us. It means a lot to us."),
     ResponseCode.ANALYTICS_EVENT_ACCEPTED: _("Event recorded."),
     ResponseCode.HEALTH_OK: _("Service is healthy."),
     ResponseCode.VALIDATION_ERROR: _("The submitted data is invalid."),
@@ -61,6 +64,7 @@ DEFAULT_MESSAGES = {
     ResponseCode.UNSUPPORTED_MEDIA_TYPE: _("The request body format is not supported. Send JSON."),
     ResponseCode.RESOURCE_CONFLICT: _("The request conflicts with the current state of the resource."),
     ResponseCode.DUPLICATE_ENQUIRY: _("We have already received this message. There is no need to send it again."),
+    ResponseCode.DUPLICATE_REVIEW: _("We have already received this review. Thank you!"),
     ResponseCode.BUSINESS_RULE_VIOLATION: _("The request could not be completed."),
     ResponseCode.RATE_LIMIT_EXCEEDED: _("Too many requests. Please wait a moment and try again."),
     ResponseCode.EXTERNAL_SERVICE_ERROR: _("A service we depend on did not respond. Please try again shortly."),

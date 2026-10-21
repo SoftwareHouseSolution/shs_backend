@@ -1853,3 +1853,18 @@ html.dark .swh-cleanup__waiting {
 .swh-cleanup__waiting .material-symbols-outlined {
   color: var(--swh-warning);
 }
+
+/* Client reviews on the dashboard: figures and breakdown rows open the filtered list. */
+a.swh-strip__item,
+a.swh-share {
+  border-radius: 10px;
+  transition: background-color 0.12s;
+}
+a.swh-strip__item:hover,
+a.swh-share:hover {
+  background: var(--color-base-50);
+}
+html.dark a.swh-strip__item:hover,
+html.dark a.swh-share:hover {
+  background: rgb(255 255 255 / 0.03);
+}
