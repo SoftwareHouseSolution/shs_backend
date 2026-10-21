@@ -2425,3 +2425,15 @@ msgstr "التقييم منشور الآن على الموقع."
 
 msgid "The review was taken off the website."
 msgstr "تمت إزالة التقييم من الموقع."
+
+msgid "%(n)d review(s) removed from the website."
+msgstr "تمت إزالة %(n)d تقييم من الموقع."
+
+msgid "Hidden from the website"
+msgstr "مخفي من الموقع"
+
+msgid "On the website — edit its wording"
+msgstr "ظاهر على الموقع — تعديل الصياغة"
+
+msgid "Remove from website"
+msgstr "إزالة من الموقع"

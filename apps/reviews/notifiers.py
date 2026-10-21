@@ -38,8 +38,7 @@ class EmailReviewNotifier:
             f"Using the system for: {review.get_duration_display()}\n"
             f"Support: {review.get_support_display()}\n"
             f"Updates: {review.get_updates_display()}\n"
-            f"Helped with: {', '.join(review.benefit_labels())}\n"
-            f"May be published: {'yes' if review.consent else 'no'}\n\n"
+            f"Helped with: {', '.join(review.benefit_labels())}\n\n"
             f"{review.text}\n"
             + (f"\nIn their own words:\n{review.comment}\n" if review.comment else "")
         )

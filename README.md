@@ -282,9 +282,12 @@ website — share it as e.g. `https://softwarehouse-sol.com/ar/review?src=facebo
 (who they are, four tapped answers, a drafted review they can edit) and the review lands in
 **Inbox → Client reviews**, with a badge for new ones and an e-mail to the enquiries address
 (subject prefixed `FOLLOW UP:` when support or updates were rated "needs improvement").
-Open a review and click **Publish as testimonial** (or select several and use the bulk
-action) to put it on the site; only reviews whose author ticked the consent box can be
-published. **Archive** keeps a review private. The dashboard's *Client reviews* section
+You decide what the website shows: open a review and click **Publish as testimonial** at
+the top to put it on the Testimonials page (`/ar/testimonials`, newest first), and
+**Remove from website** to take it off again (its testimonial is hidden, not deleted, so
+publishing again restores any wording you polished). The same two actions work on several
+reviews at once from the list. The status follows those buttons and is not edited by hand.
+**Archive** keeps a new review private. The dashboard's *Client reviews* section
 counts reviews, those waiting for you and those needing follow-up, and breaks down the
 support and update ratings and what the system helped clients with. After sending, a client
 is offered to also post the review on Facebook: set the post in **Site settings → Client

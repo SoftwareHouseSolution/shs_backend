@@ -1,7 +1,7 @@
 """Repair reviews whose status was set to Published from the status list before saving did
 anything: they show "Published" in the admin but have no testimonial, so nothing reached
-the website. Each one with the client's consent gets its testimonial now, exactly as the
-"Publish as testimonial" button would make it; one without consent goes back to New."""
+the website. Each one gets its testimonial now, exactly as the "Publish as testimonial"
+button would make it."""
 
 from django.db import migrations
 from django.db.models import F
@@ -18,10 +18,6 @@ def publish_marked_reviews(apps, schema_editor):
     Review = apps.get_model("reviews", "Review")
     Testimonial = apps.get_model("content", "Testimonial")
     for review in Review.objects.filter(status="published", testimonial__isnull=True).order_by("created_at"):
-        if not review.consent:
-            review.status = "new"
-            review.save(update_fields=["status"])
-            continue
         lang = review.language if review.language in ("en", "ar") else "ar"
         company = f"{review.shop_name} — {_place(review)}"
         Testimonial.objects.update(order=F("order") + 1)

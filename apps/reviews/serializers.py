@@ -23,7 +23,6 @@ class ReviewCreateSerializer(serializers.Serializer):
     )
     comment = serializers.CharField(max_length=2000, required=False, allow_blank=True, default="")
     text = serializers.CharField(min_length=20, max_length=4000)
-    consent = serializers.BooleanField(default=False)
     source = serializers.CharField(max_length=60, required=False, allow_blank=True, default="")
     # Honeypot: hidden in the form, so only bots fill it in.
     website = serializers.CharField(required=False, allow_blank=True, default="", write_only=True)

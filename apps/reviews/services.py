@@ -20,10 +20,6 @@ from .notifiers import ReviewNotifier, get_review_notifier
 logger = logging.getLogger("apps.reviews")
 
 
-class PublishRefused(Exception):
-    """The review cannot become a testimonial (the client did not consent)."""
-
-
 @dataclass(frozen=True)
 class ReviewInput:
     author_name: str
@@ -36,7 +32,6 @@ class ReviewInput:
     text: str
     benefits: list[str] = field(default_factory=list)
     comment: str = ""
-    consent: bool = False
     source: str = ""
 
 
@@ -79,10 +74,7 @@ class ReviewService:
 
 def publish(review: Review) -> Testimonial:
     """Turn a review into a published testimonial on the website. Idempotent: a review that
-    already has its testimonial makes sure it is shown again and returns it. Refused when
-    the client did not consent."""
-    if not review.consent:
-        raise PublishRefused(review)
+    already has its testimonial makes sure it is shown again and returns it."""
     if review.testimonial_id:
         testimonial = review.testimonial
         if not testimonial.is_published:
@@ -111,12 +103,16 @@ def publish(review: Review) -> Testimonial:
 
 
 def withdraw(review: Review) -> bool:
-    """Take a published review off the website (its testimonial is hidden, not deleted, so
-    publishing again restores it with any wording an editor polished). True when something
-    was hidden."""
-    testimonial = review.testimonial if review.testimonial_id else None
-    if testimonial is None or not testimonial.is_published:
+    """Take a published review off the website: its testimonial is hidden, not deleted, so
+    publishing again restores it with any wording an editor polished; the review becomes
+    Archived. True when it was on the website."""
+    if review.status != Review.Status.PUBLISHED:
         return False
-    testimonial.is_published = False
-    testimonial.save(update_fields=["is_published", "updated_at"])
+    with transaction.atomic():
+        testimonial = review.testimonial if review.testimonial_id else None
+        if testimonial is not None and testimonial.is_published:
+            testimonial.is_published = False
+            testimonial.save(update_fields=["is_published", "updated_at"])
+        review.status = Review.Status.ARCHIVED
+        review.save(update_fields=["status", "updated_at"])
     return True

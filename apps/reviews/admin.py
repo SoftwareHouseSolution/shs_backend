@@ -1,5 +1,5 @@
 """Admin → Inbox → Client reviews. Reviews arrive from the website; editors read them,
-follow up on low ratings, and publish the good ones as testimonials in one click."""
+follow up on low ratings, and decide which ones the website shows."""
 
 from django.contrib import admin, messages
 from django.shortcuts import redirect
@@ -11,7 +11,7 @@ from unfold.decorators import action, display
 from apps.core.admin_utils import PlainAdmin, image_tag
 
 from .models import Review
-from .services import PublishRefused, publish, withdraw
+from .services import publish, withdraw
 
 
 def new_review_badge(request):
@@ -29,57 +29,43 @@ RATING_TONES = {Review.Rating.GOOD.label: "success", Review.Rating.OK.label: "in
 
 @admin.register(Review)
 class ReviewAdmin(PlainAdmin):
-    list_display = ["shop_name", "author_name", "place", "support_label", "updates_label", "consent", "status_label", "created_at"]
-    list_filter = ["status", "support", "updates", "duration", "consent", "governorate", "source", "created_at"]
+    """The buttons at the top of a review decide what the website shows: "Publish as
+    testimonial" puts it on the Testimonials page, "Remove from website" takes it off.
+    The status follows those buttons and cannot be edited by hand, so the label and the
+    website never disagree."""
+
+    list_display = ["shop_name", "author_name", "place", "support_label", "updates_label", "status_label", "created_at"]
+    list_filter = ["status", "support", "updates", "duration", "governorate", "source", "created_at"]
     search_fields = ["author_name", "shop_name", "governorate", "area", "text", "comment"]
     date_hierarchy = "created_at"
     readonly_fields = [
         "reference", "review_text", "own_words", "author_name", "shop_name", "governorate", "area", "photo_preview",
-        "duration", "support", "updates", "benefit_list", "consent", "language", "source",
-        "testimonial_link", "created_at", "updated_at",
+        "duration", "support", "updates", "benefit_list", "language", "source",
+        "status_label", "testimonial_link", "created_at", "updated_at",
     ]
     fieldsets = [
         (_("Review"), {"fields": ["reference", "review_text", "own_words"]}),
         (_("Client"), {"fields": ["author_name", "shop_name", "governorate", "area", "photo_preview"]}),
         (_("Answers"), {"fields": ["duration", "support", "updates", "benefit_list"]}),
-        (_("Context"), {"fields": ["consent", "language", "source", "created_at", "updated_at"]}),
-        (_("Follow-up"), {"fields": ["status", "testimonial_link", "internal_notes"]}),
+        (_("Context"), {"fields": ["language", "source", "created_at", "updated_at"]}),
+        (_("Follow-up"), {"fields": ["status_label", "testimonial_link", "internal_notes"]}),
     ]
-    actions = ["publish_selected", "archive_selected"]
-    actions_detail = ["publish_this"]
+    actions = ["publish_selected", "withdraw_selected", "archive_selected"]
+    actions_detail = ["publish_this", "withdraw_this"]
 
     def has_add_permission(self, request):
         return False
 
-    def formfield_for_dbfield(self, db_field, request, **kwargs):
-        field = super().formfield_for_dbfield(db_field, request, **kwargs)
-        if db_field.name == "status":
-            field.help_text = _(
-                "Published puts the review on the website (Testimonials page) when you save; "
-                "New or Archived takes it off. Publishing needs the client's consent."
-            )
-        return field
+    # One of the two buttons at the top, depending on whether the review is on the site.
 
-    def save_model(self, request, obj, form, change):
-        """The status list does what it says: choosing Published and saving publishes the
-        review, choosing anything else takes it off the website."""
-        super().save_model(request, obj, form, change)
-        if "status" not in form.changed_data:
-            return
-        if obj.status == Review.Status.PUBLISHED:
-            try:
-                publish(obj)
-                self.message_user(request, _("The review is now on the website."), messages.SUCCESS)
-            except PublishRefused:
-                obj.status = form.initial.get("status") or Review.Status.NEW
-                obj.save(update_fields=["status", "updated_at"])
-                self.message_user(
-                    request,
-                    _("This review cannot be published: the client did not agree to publication."),
-                    messages.ERROR,
-                )
-        elif withdraw(obj):
-            self.message_user(request, _("The review was taken off the website."), messages.WARNING)
+    def _is_live(self, object_id) -> bool:
+        return Review.objects.filter(pk=object_id, status=Review.Status.PUBLISHED).exists()
+
+    def has_publish_review_permission(self, request, object_id=None):
+        return self.has_change_permission(request) and (object_id is None or not self._is_live(object_id))
+
+    def has_withdraw_review_permission(self, request, object_id=None):
+        return self.has_change_permission(request) and (object_id is None or self._is_live(object_id))
 
     # ── Columns and read-only fields ─────────────────────────────────────────────────
 
@@ -128,40 +114,35 @@ class ReviewAdmin(PlainAdmin):
         if not obj.testimonial_id:
             return "—"
         url = reverse("admin:content_testimonial_change", args=[obj.testimonial_id])
-        return format_html('<a class="swh-link" href="{}">{}</a>', url, _("Open the published testimonial"))
+        label = _("On the website — edit its wording") if obj.status == Review.Status.PUBLISHED else _("Hidden from the website")
+        return format_html('<a class="swh-link" href="{}">{}</a>', url, label)
 
     # ── Actions ──────────────────────────────────────────────────────────────────────
 
     @action(description=_("Publish as testimonial"), permissions=["change"])
     def publish_selected(self, request, queryset):
-        published = refused = 0
         for review in queryset.select_related("testimonial"):
-            try:
-                publish(review)
-                published += 1
-            except PublishRefused:
-                refused += 1
-        if published:
-            self.message_user(request, _("%(n)d review(s) published on the website.") % {"n": published}, messages.SUCCESS)
-        if refused:
-            self.message_user(
-                request,
-                _("%(n)d review(s) were not published: the client did not agree to publication.") % {"n": refused},
-                messages.WARNING,
-            )
+            publish(review)
+        self.message_user(request, _("%(n)d review(s) published on the website.") % {"n": queryset.count()}, messages.SUCCESS)
+
+    @action(description=_("Remove from website"), permissions=["change"])
+    def withdraw_selected(self, request, queryset):
+        n = sum(withdraw(review) for review in queryset.select_related("testimonial"))
+        self.message_user(request, _("%(n)d review(s) removed from the website.") % {"n": n}, messages.SUCCESS)
 
     @action(description=_("Archive (keep private)"), permissions=["change"])
     def archive_selected(self, request, queryset):
         n = queryset.filter(status=Review.Status.NEW).update(status=Review.Status.ARCHIVED)
         self.message_user(request, _("%(n)d review(s) archived.") % {"n": n}, messages.SUCCESS)
 
-    @action(description=_("Publish as testimonial"), url_path="publish", icon="publish", permissions=["change"])
+    @action(description=_("Publish as testimonial"), url_path="publish", icon="publish", permissions=["publish_review"])
     def publish_this(self, request, object_id):
-        review = self.get_object(request, object_id)
-        try:
-            testimonial = publish(review)
-        except PublishRefused:
-            self.message_user(request, _("This review cannot be published: the client did not agree to publication."), messages.ERROR)
-            return redirect(reverse("admin:reviews_review_change", args=[object_id]))
-        self.message_user(request, _("Published. You can edit the testimonial's wording here."), messages.SUCCESS)
-        return redirect(reverse("admin:content_testimonial_change", args=[testimonial.pk]))
+        publish(self.get_object(request, object_id))
+        self.message_user(request, _("The review is now on the website."), messages.SUCCESS)
+        return redirect(reverse("admin:reviews_review_change", args=[object_id]))
+
+    @action(description=_("Remove from website"), url_path="withdraw", icon="visibility_off", permissions=["withdraw_review"])
+    def withdraw_this(self, request, object_id):
+        withdraw(self.get_object(request, object_id))
+        self.message_user(request, _("The review was taken off the website."), messages.WARNING)
+        return redirect(reverse("admin:reviews_review_change", args=[object_id]))

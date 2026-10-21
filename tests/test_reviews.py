@@ -14,7 +14,7 @@ from apps.content import models as content
 from apps.core.codes import ResponseCode
 from apps.reviews.models import Review
 from apps.reviews.notifiers import EmailReviewNotifier
-from apps.reviews.services import PublishRefused, ReviewInput, ReviewService, publish
+from apps.reviews.services import ReviewInput, ReviewService, publish, withdraw
 from config.api_exceptions import ResourceConflictException
 from tests.contract import assert_envelope
 
@@ -32,7 +32,6 @@ VALID = {
     "updates": "ok",
     "benefits": ["inventory", "invoices"],
     "text": TEXT,
-    "consent": "true",
 }
 
 
@@ -43,8 +42,7 @@ def _jpeg() -> SimpleUploadedFile:
 
 
 def _review(**overrides) -> Review:
-    data = {k: v for k, v in VALID.items() if k != "consent"}
-    return Review.objects.create(**{**data, "consent": True, "language": "ar", **overrides})
+    return Review.objects.create(**{**VALID, "language": "ar", **overrides})
 
 
 # ── API ──────────────────────────────────────────────────────────────────────────────
@@ -59,7 +57,7 @@ def test_a_review_with_a_photo_is_stored(api, settings, tmp_path):
     )
     review = Review.objects.get()
     assert body["data"]["reference"] == review.reference
-    assert review.benefits == ["inventory", "invoices"] and review.consent is True
+    assert review.benefits == ["inventory", "invoices"]
     assert review.language == "ar" and review.source == "facebook"
     assert review.photo.name.startswith("reviews/") and (tmp_path / review.photo.name).exists()
     assert review.status == Review.Status.NEW
@@ -71,7 +69,7 @@ def test_the_success_message_is_in_the_requested_language(api):
 
 
 def test_json_without_a_photo_is_accepted(api):
-    assert_envelope(api.post(URL, {**VALID, "consent": True}, format="json"), status=201, code=ResponseCode.REVIEW_CREATED)
+    assert_envelope(api.post(URL, VALID, format="json"), status=201, code=ResponseCode.REVIEW_CREATED)
 
 
 @pytest.mark.parametrize(
@@ -138,8 +136,7 @@ class RecordingNotifier:
 
 
 def _input(**overrides) -> ReviewInput:
-    data = {k: v for k, v in VALID.items() if k != "consent"}
-    return ReviewInput(**{**data, "consent": True, **overrides})
+    return ReviewInput(**{**VALID, **overrides})
 
 
 def test_the_team_is_told_after_commit(django_capture_on_commit_callbacks):
@@ -188,10 +185,17 @@ def test_publishing_creates_a_live_testimonial_once():
     assert publish(review) == testimonial and content.Testimonial.objects.filter(review=review).count() == 1
 
 
-def test_reviews_without_consent_cannot_be_published():
-    with pytest.raises(PublishRefused):
-        publish(_review(consent=False))
-    assert not content.Testimonial.objects.filter(quote_ar=TEXT).exists()
+def test_removing_from_the_website_hides_and_archives_and_publishing_restores():
+    review = _review()
+    testimonial = publish(review)
+    assert withdraw(review) is True
+    testimonial.refresh_from_db()
+    review.refresh_from_db()
+    assert not testimonial.is_published and review.status == Review.Status.ARCHIVED
+    assert withdraw(review) is False  # already off the website
+    assert publish(review) == testimonial
+    testimonial.refresh_from_db()
+    assert testimonial.is_published and review.status == Review.Status.PUBLISHED
 
 
 def test_a_published_review_appears_in_the_testimonials_api(api):
@@ -210,23 +214,36 @@ def test_the_inbox_lists_and_opens_reviews(admin_client):
     assert page.status_code == 200 and review.reference.encode() in page.content
 
 
-def test_the_detail_button_publishes_and_opens_the_testimonial(admin_client):
+def test_the_top_button_publishes_and_then_removes(admin_client):
     review = _review()
-    response = admin_client.get(reverse("admin:reviews_review_publish_this", args=[review.pk]))
+    change = reverse("admin:reviews_review_change", args=[review.pk])
+    publish_url = reverse("admin:reviews_review_publish_this", args=[review.pk])
+    withdraw_url = reverse("admin:reviews_review_withdraw_this", args=[review.pk])
+
+    page = admin_client.get(change).content.decode()
+    assert publish_url in page and withdraw_url not in page
+
+    response = admin_client.get(publish_url)
+    assert response.status_code == 302 and response["Location"] == change
     review.refresh_from_db()
-    assert response.status_code == 302
-    assert response["Location"] == reverse("admin:content_testimonial_change", args=[review.testimonial_id])
+    assert review.status == Review.Status.PUBLISHED and review.testimonial.is_published
+
+    page = admin_client.get(change).content.decode()
+    assert withdraw_url in page and publish_url not in page
+
+    admin_client.get(withdraw_url)
+    review.refresh_from_db()
+    assert review.status == Review.Status.ARCHIVED and not review.testimonial.is_published
 
 
-def test_the_bulk_action_skips_reviews_without_consent(admin_client):
-    ok, refused = _review(), _review(consent=False, shop_name="Private shop")
-    admin_client.post(
-        reverse("admin:reviews_review_changelist"),
-        {"action": "publish_selected", "_selected_action": [ok.pk, refused.pk]},
-    )
-    ok.refresh_from_db()
-    refused.refresh_from_db()
-    assert ok.status == Review.Status.PUBLISHED and refused.status == Review.Status.NEW
+def test_bulk_actions_publish_and_remove(admin_client):
+    a, b = _review(), _review(shop_name="Second shop")
+    changelist = reverse("admin:reviews_review_changelist")
+    admin_client.post(changelist, {"action": "publish_selected", "_selected_action": [a.pk, b.pk]})
+    assert Review.objects.filter(status=Review.Status.PUBLISHED).count() == 2
+    admin_client.post(changelist, {"action": "withdraw_selected", "_selected_action": [a.pk]})
+    a.refresh_from_db()
+    assert a.status == Review.Status.ARCHIVED and not a.testimonial.is_published
 
 
 def test_the_dashboard_shows_the_review_breakdown(admin_client):
@@ -247,42 +264,18 @@ def test_a_newly_published_review_is_listed_first(api):
     assert data[0]["quote"] == TEXT + " جديد" and data[1]["quote"] == TEXT
 
 
-# ── The status list in the review form ───────────────────────────────────────────────
+# ── The status is not edited by hand ─────────────────────────────────────────────────
 
 
-def _save_status(admin_client, review, status):
-    return admin_client.post(
-        reverse("admin:reviews_review_change", args=[review.pk]),
-        {"status": status, "internal_notes": "", "_save": "Save"},
-        follow=True,
-    )
-
-
-def test_choosing_published_and_saving_publishes(admin_client):
+def test_the_status_cannot_be_changed_from_the_form(admin_client):
     review = _review()
-    _save_status(admin_client, review, "published")
-    review.refresh_from_db()
-    assert review.status == Review.Status.PUBLISHED and review.testimonial.is_published
-
-
-def test_choosing_published_without_consent_is_refused(admin_client):
-    review = _review(consent=False)
-    response = _save_status(admin_client, review, "published")
+    admin_client.post(
+        reverse("admin:reviews_review_change", args=[review.pk]),
+        {"status": "published", "internal_notes": "called him back", "_save": "Save"},
+    )
     review.refresh_from_db()
     assert review.status == Review.Status.NEW and review.testimonial_id is None
-    assert "did not agree" in response.content.decode()
-
-
-def test_archiving_a_published_review_hides_it_and_publishing_restores_it(admin_client):
-    review = _review()
-    testimonial = publish(review)
-    _save_status(admin_client, review, "archived")
-    testimonial.refresh_from_db()
-    assert not testimonial.is_published
-    _save_status(admin_client, review, "published")
-    testimonial.refresh_from_db()
-    review.refresh_from_db()
-    assert testimonial.is_published and review.testimonial_id == testimonial.pk
+    assert review.internal_notes == "called him back"
 
 
 def test_the_repair_migration_publishes_reviews_marked_published():
@@ -292,13 +285,10 @@ def test_the_repair_migration_publishes_reviews_marked_published():
 
     repair = importlib.import_module("apps.reviews.migrations.0002_publish_reviews_marked_published")
     marked = _review(status=Review.Status.PUBLISHED, photo="reviews/shop.jpg")
-    private = _review(status=Review.Status.PUBLISHED, consent=False, shop_name="Private shop")
 
     repair.publish_marked_reviews(apps, None)
 
     marked.refresh_from_db()
-    private.refresh_from_db()
     assert marked.testimonial.is_published and marked.testimonial.quote_ar == TEXT
     assert marked.testimonial.author_company_ar == "مجوهرات النور — الصاغة – الموسكي، القاهرة"
     assert marked.testimonial.order == 0 and marked.testimonial.avatar.name == "reviews/shop.jpg"
-    assert private.status == Review.Status.NEW and private.testimonial_id is None

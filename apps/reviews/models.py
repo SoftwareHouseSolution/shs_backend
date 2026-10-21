@@ -12,8 +12,7 @@ class Review(TimeStampedModel):
 
     The answers are stored as codes, not sentences, so the dashboard can count them; the
     review text is what the client approved after editing the generated draft. Nothing
-    reaches the public site until an editor publishes it as a Testimonial, and only reviews
-    whose author consented can be published.
+    reaches the public site until an editor publishes it as a Testimonial.
     """
 
     class Status(models.TextChoices):
@@ -55,7 +54,6 @@ class Review(TimeStampedModel):
     benefits = models.JSONField(_("helped with"), default=list, help_text=_("Benefit codes."))
     comment = models.TextField(_("in their own words"), blank=True)
     text = models.TextField(_("review"))
-    consent = models.BooleanField(_("may be published"), default=False)
     # Context
     language = models.CharField(_("language"), max_length=5, choices=settings.LANGUAGES, default="ar")
     source = models.CharField(
