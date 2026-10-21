@@ -238,3 +238,10 @@ def test_the_dashboard_shows_the_review_breakdown(admin_client):
     assert support == {"Excellent": 1, "Good": 0, "Needs improvement": 1}
     assert context["review_benefits"][0]["count"] == 2
     assert context["review_kpis"][4]["value"] == 1  # need follow-up
+
+
+def test_a_newly_published_review_is_listed_first(api):
+    publish(_review())
+    publish(_review(shop_name="Newest shop", text=TEXT + " جديد"))
+    data = api.get("/api/v1/testimonials/?lang=ar").json()["data"]
+    assert data[0]["quote"] == TEXT + " جديد" and data[1]["quote"] == TEXT

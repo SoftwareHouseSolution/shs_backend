@@ -7,7 +7,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import F
 from django.utils import timezone
 
 from apps.content.models import Testimonial
@@ -86,8 +86,10 @@ def publish(review: Review) -> Testimonial:
         raise PublishRefused(review)
     lang = review.language if review.language in ("en", "ar") else "ar"
     with transaction.atomic():
-        order = (Testimonial.objects.aggregate(m=Max("order"))["m"] or 0) + 1
-        testimonial = Testimonial(order=order, is_published=True)
+        # Newest first: the new testimonial takes the top slot and the rest move down one,
+        # so it shows first on the site; editors can still drag it elsewhere.
+        Testimonial.objects.update(order=F("order") + 1)
+        testimonial = Testimonial(order=0, is_published=True)
         setattr(testimonial, f"quote_{lang}", review.text)
         setattr(testimonial, f"author_name_{lang}", review.author_name)
         setattr(testimonial, f"author_company_{lang}", f"{review.shop_name} — {review.place}")
