@@ -130,7 +130,7 @@ def test_seed_is_idempotent():
     before = (Client.objects.count(), PageBlock.objects.count(), NavigationItem.objects.count())
     call_command("seed_content", verbosity=0)
     after = (Client.objects.count(), PageBlock.objects.count(), NavigationItem.objects.count())
-    assert before == after == (367, 46, 22)
+    assert before == after == (367, 45, 22)
 
 
 def test_seed_file_is_valid_json_with_both_languages(settings):

@@ -2467,19 +2467,6 @@
       "blocks": [
         {
           "order": 0,
-          "kind": "intro",
-          "eyebrow": null,
-          "heading": {
-            "en": "Being prepared",
-            "ar": "قيد الإعداد"
-          },
-          "body": {
-            "en": "We are assembling verified client testimonials for publication. Rather than fill this page with placeholder claims, we would rather show you the real material — get in touch and we will walk you through it directly.",
-            "ar": "نعمل حاليًا على تجهيز آراء العملاء الموثّقة للنشر. وبدلًا من ملء هذه الصفحة بادعاءات مؤقتة، نفضّل أن نعرض عليك المادة الحقيقية — تواصل معنا وسنستعرضها معك مباشرة."
-          }
-        },
-        {
-          "order": 1,
           "kind": "cta",
           "heading": {
             "en": "Talk to a client",
