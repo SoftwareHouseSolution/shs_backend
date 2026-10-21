@@ -2437,3 +2437,6 @@ msgstr "ظاهر على الموقع — تعديل الصياغة"
 
 msgid "Remove from website"
 msgstr "إزالة من الموقع"
+
+msgid "The new photo is on the website too."
+msgstr "الصورة الجديدة ظهرت على الموقع أيضًا."

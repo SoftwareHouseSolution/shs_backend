@@ -292,3 +292,62 @@ def test_the_repair_migration_publishes_reviews_marked_published():
     assert marked.testimonial.is_published and marked.testimonial.quote_ar == TEXT
     assert marked.testimonial.author_company_ar == "مجوهرات النور — الصاغة – الموسكي، القاهرة"
     assert marked.testimonial.order == 0 and marked.testimonial.avatar.name == "reviews/shop.jpg"
+
+
+# ── Replacing the photo ──────────────────────────────────────────────────────────────
+
+
+def _save_photo(admin_client, review, **data):
+    return admin_client.post(
+        reverse("admin:reviews_review_change", args=[review.pk]),
+        {"internal_notes": "", "_save": "Save", **data},
+    )
+
+
+def test_the_photo_can_be_replaced_and_nothing_else(admin_client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    review = _review()
+    response = _save_photo(admin_client, review, photo=_jpeg(), shop_name="Changed", text="changed text " * 5)
+    assert response.status_code == 302
+    review.refresh_from_db()
+    assert review.photo.name.startswith("reviews/") and (tmp_path / review.photo.name).exists()
+    assert review.shop_name == VALID["shop_name"] and review.text == TEXT
+
+
+def test_a_new_photo_reaches_the_published_testimonial(admin_client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    review = _review(photo="reviews/old.jpg")
+    testimonial = publish(review)
+    _save_photo(admin_client, review, photo=_jpeg())
+    review.refresh_from_db()
+    testimonial.refresh_from_db()
+    assert testimonial.avatar.name == review.photo.name != "reviews/old.jpg"
+
+
+def test_a_photo_the_editor_gave_the_testimonial_is_kept(admin_client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    review = _review(photo="reviews/old.jpg")
+    testimonial = publish(review)
+    testimonial.avatar = "testimonials/chosen.jpg"
+    testimonial.save()
+    _save_photo(admin_client, review, photo=_jpeg())
+    testimonial.refresh_from_db()
+    assert testimonial.avatar.name == "testimonials/chosen.jpg"
+
+
+def test_clearing_the_photo_clears_it_on_the_website(admin_client):
+    review = _review(photo="reviews/old.jpg")
+    testimonial = publish(review)
+    _save_photo(admin_client, review, **{"photo-clear": "on"})
+    review.refresh_from_db()
+    testimonial.refresh_from_db()
+    assert not review.photo and not testimonial.avatar
+
+
+def test_a_non_image_is_refused(admin_client):
+    review = _review()
+    fake = SimpleUploadedFile("shop.jpg", b"MZ not an image", content_type="image/jpeg")
+    response = _save_photo(admin_client, review, photo=fake)
+    assert response.status_code == 200  # the form comes back with the error
+    review.refresh_from_db()
+    assert not review.photo

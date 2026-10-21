@@ -45,7 +45,9 @@ class ReviewAdmin(PlainAdmin):
     ]
     fieldsets = [
         (_("Review"), {"fields": ["reference", "review_text", "own_words"]}),
-        (_("Client"), {"fields": ["author_name", "shop_name", "governorate", "area", "photo_preview"]}),
+        # The photo is the one thing an editor may change (a better shot, or none at all);
+        # everything else is the client's own submission and stays read-only.
+        (_("Client"), {"fields": ["author_name", "shop_name", "governorate", "area", ("photo", "photo_preview")]}),
         (_("Answers"), {"fields": ["duration", "support", "updates", "benefit_list"]}),
         (_("Context"), {"fields": ["language", "source", "created_at", "updated_at"]}),
         (_("Follow-up"), {"fields": ["status_label", "testimonial_link", "internal_notes"]}),
@@ -55,6 +57,20 @@ class ReviewAdmin(PlainAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def save_model(self, request, obj, form, change):
+        """A new photo also replaces the one on the review's testimonial — unless an editor
+        already gave the testimonial a different photo of its own, which is kept."""
+        super().save_model(request, obj, form, change)
+        if "photo" not in form.changed_data or not obj.testimonial_id:
+            return
+        previous = form.initial.get("photo")
+        testimonial = obj.testimonial
+        if testimonial.avatar.name in ("", getattr(previous, "name", previous) or ""):
+            testimonial.avatar = obj.photo.name if obj.photo else ""
+            testimonial.save(update_fields=["avatar", "updated_at"])
+            if testimonial.is_published:
+                self.message_user(request, _("The new photo is on the website too."), messages.SUCCESS)
 
     # One of the two buttons at the top, depending on whether the review is on the site.
 
