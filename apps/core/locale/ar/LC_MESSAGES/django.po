@@ -2440,3 +2440,60 @@ msgstr "إزالة من الموقع"
 
 msgid "The new photo is on the website too."
 msgstr "الصورة الجديدة ظهرت على الموقع أيضًا."
+
+msgid "2–3 branches"
+msgstr "٢–٣ فروع"
+
+msgid "4 or more branches"
+msgstr "٤ فروع أو أكثر"
+
+msgid "AI (%(model)s)"
+msgstr "ذكاء اصطناعي (%(model)s)"
+
+msgid "Another program"
+msgstr "برنامج آخر"
+
+msgid "Each client's draft is written from their own answers."
+msgstr "مسودة كل عميل تُكتب من إجاباته هو."
+
+msgid "Excel"
+msgstr "إكسيل"
+
+msgid "Here is a draft of your review. Change anything you like."
+msgstr "ده الريفيو بتاعك متكتب من إجاباتك. غيّر فيه اللي انت عايزه."
+
+msgid "Manufacturing / workshop"
+msgstr "تصنيع / ورشة"
+
+msgid "Nothing — first system"
+msgstr "لا شيء — أول نظام"
+
+msgid "One shop"
+msgstr "محل واحد"
+
+msgid "Paper ledgers"
+msgstr "دفاتر وورق"
+
+msgid "Retail shop"
+msgstr "محل قطاعي"
+
+msgid "Review drafts"
+msgstr "مسودات التقييم"
+
+msgid "Set ANTHROPIC_API_KEY so each client's draft is written by AI from their own answers."
+msgstr "اضبط ANTHROPIC_API_KEY لتُكتب مسودة كل عميل بالذكاء الاصطناعي من إجاباته."
+
+msgid "Templates only"
+msgstr "قوالب فقط"
+
+msgid "Wholesale"
+msgstr "جملة"
+
+msgid "before Software House"
+msgstr "قبل سوفت وير هاوس"
+
+msgid "branches"
+msgstr "الفروع"
+
+msgid "business"
+msgstr "نوع النشاط"

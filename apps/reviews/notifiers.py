@@ -38,7 +38,11 @@ class EmailReviewNotifier:
             f"Using the system for: {review.get_duration_display()}\n"
             f"Support: {review.get_support_display()}\n"
             f"Updates: {review.get_updates_display()}\n"
-            f"Helped with: {', '.join(review.benefit_labels())}\n\n"
+            f"Helped with: {', '.join(review.benefit_labels())}\n"
+            + (f"Business: {review.get_business_type_display()}\n" if review.business_type else "")
+            + (f"Branches: {review.get_branches_display()}\n" if review.branches else "")
+            + (f"Before Software House: {review.get_previous_system_display()}\n" if review.previous_system else "")
+            + "\n"
             f"{review.text}\n"
             + (f"\nIn their own words:\n{review.comment}\n" if review.comment else "")
         )

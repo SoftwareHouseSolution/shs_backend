@@ -142,6 +142,9 @@ are required. Full annotated list: `.env.example`.
 | `API_THROTTLE_ANON` | `600/min` | Global per-IP rate limit |
 | `API_THROTTLE_ENQUIRIES` | `5/hour` | Per-IP contact-form submissions |
 | `API_THROTTLE_REVIEWS` | `5/hour` | Per-IP client-review submissions |
+| `API_THROTTLE_REVIEW_DRAFTS` | `30/hour` | Per-IP AI review drafts (each is a paid model call) |
+| `ANTHROPIC_API_KEY` | — | Turns on AI-written review drafts; empty = the page's own templates |
+| `REVIEW_AI_MODEL` | `claude-opus-5-5` | Model that writes the drafts |
 | `REVIEW_NOTIFIER` | `…EmailReviewNotifier` | Who hears about new reviews (`NullReviewNotifier` disables) |
 | `API_THROTTLE_ANALYTICS` | `120/min` | Per-IP page-view reports |
 | `ANALYTICS_RETENTION_DAYS` | `180` | Visits older than this are removed by `prune_analytics` |
@@ -279,7 +282,8 @@ Global Privacy Control are not counted, nor are bots. Schedule
 **Client reviews.** Clients review the system at `/ar/review` (or `/en/review`) on the
 website — share it as e.g. `https://softwarehouse-sol.com/ar/review?src=facebook`; the
 `src` tag is recorded so you can see which channel brought each review. Three short steps
-(who they are, four tapped answers, a drafted review they can edit) and the review lands in
+(who they are, four tapped answers plus three optional ones — business type, branches, what
+they used before — and a drafted review they can edit) and the review lands in
 **Inbox → Client reviews**, with a badge for new ones and an e-mail to the enquiries address
 (subject prefixed `FOLLOW UP:` when support or updates were rated "needs improvement").
 You decide what the website shows: open a review and click **Publish as testimonial** at
@@ -292,6 +296,15 @@ counts reviews, those waiting for you and those needing follow-up, and breaks do
 support and update ratings and what the system helped clients with. After sending, a client
 is offered to also post the review on Facebook: set the post in **Site settings → Client
 reviews** (empty hides that step).
+
+**Review drafts.** With `ANTHROPIC_API_KEY` set, each draft is written by Claude
+(`REVIEW_AI_MODEL`) from that client's own answers and words, in Egyptian Arabic on the Arabic
+page, from a randomly chosen opening angle, so two clients with the same answers still get
+different reviews; "write it another way" sends the previous draft so the next one avoids it.
+It uses only the facts the client gave and keeps low ratings honest. Without a key, or if a
+call fails, the page drafts from its own template engine (`shs_frontend/content/reviewDrafts.ts`)
+— the form never depends on the AI. A draft costs roughly one cent at Claude Opus 5.5 prices;
+`API_THROTTLE_REVIEW_DRAFTS` caps it per visitor. System status shows which mode is on.
 
 **System status** (superusers only, **System → System status**) checks the application
 (environment, uptime, memory, unapplied migrations), the server (CPU load, memory and disk
@@ -342,6 +355,7 @@ Base URL: `/api/v1/`. Public, anonymous, JSON only.
 | GET | `/partners/` | `{name, logo, website, category}` | paginated; `?category=technology\|business` |
 | POST | `/enquiries/` | `{reference, created_at}` (201) | contact form; JSON body; rate-limited |
 | POST | `/reviews/` | `{reference, created_at}` (201) | client review page; multipart (optional `photo`), `benefits` repeated; rate-limited |
+| POST | `/reviews/draft/` | `{text}` | the client's answers → a review in their voice (AI); 503 when AI is off, and the page drafts locally |
 | POST | `/analytics/collect/` | `null` (202) | page-view report from the site's tracker; JSON or `text/plain` (sendBeacon); idempotent per `view_id`; bots dropped; rate-limited |
 
 Media fields are absolute URLs. Internal link fields are locale-free paths (see *Links*).
@@ -473,6 +487,7 @@ Unexpected failure → **500** (nothing about the cause is exposed):
 | `HEALTH_OK` | 200 | `/health/` |
 | `ENQUIRY_CREATED` | 201 | Enquiry stored |
 | `REVIEW_CREATED` | 201 | Client review stored |
+| `REVIEW_DRAFTED` | 200 | AI review draft returned |
 | `ANALYTICS_EVENT_ACCEPTED` | 202 | Page-view report accepted (also for dropped bot traffic) |
 | `VALIDATION_ERROR` | 400 | Field validation failed — see `errors` |
 | `MALFORMED_REQUEST` | 400 | Body is not valid JSON |

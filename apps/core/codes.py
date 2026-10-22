@@ -19,6 +19,7 @@ class ResponseCode(StrEnum):
     CONTENT_LIST_RETRIEVED = "CONTENT_LIST_RETRIEVED"
     ENQUIRY_CREATED = "ENQUIRY_CREATED"
     REVIEW_CREATED = "REVIEW_CREATED"
+    REVIEW_DRAFTED = "REVIEW_DRAFTED"
     ANALYTICS_EVENT_ACCEPTED = "ANALYTICS_EVENT_ACCEPTED"
     HEALTH_OK = "HEALTH_OK"
 
@@ -50,6 +51,7 @@ DEFAULT_MESSAGES = {
     ResponseCode.CONTENT_LIST_RETRIEVED: _("Content retrieved successfully."),
     ResponseCode.ENQUIRY_CREATED: _("Thank you — your message has been received. We will be in touch soon."),
     ResponseCode.REVIEW_CREATED: _("Thank you! Your review has reached us. It means a lot to us."),
+    ResponseCode.REVIEW_DRAFTED: _("Here is a draft of your review. Change anything you like."),
     ResponseCode.ANALYTICS_EVENT_ACCEPTED: _("Event recorded."),
     ResponseCode.HEALTH_OK: _("Service is healthy."),
     ResponseCode.VALIDATION_ERROR: _("The submitted data is invalid."),

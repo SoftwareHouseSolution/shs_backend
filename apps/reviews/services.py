@@ -31,6 +31,9 @@ class ReviewInput:
     updates: str
     text: str
     benefits: list[str] = field(default_factory=list)
+    business_type: str = ""
+    branches: str = ""
+    previous_system: str = ""
     comment: str = ""
     source: str = ""
 

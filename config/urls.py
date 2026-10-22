@@ -13,7 +13,7 @@ from apps.enquiries.views import EnquiryCreateView
 from apps.events.views import EventDetailView, EventListView
 from apps.home.views import HomeView
 from apps.pages.views import PageDetailView, PageListView
-from apps.reviews.views import ReviewCreateView
+from apps.reviews.views import ReviewCreateView, ReviewDraftView
 from apps.site_config.views import SiteView
 
 api_v1 = [
@@ -30,6 +30,7 @@ api_v1 = [
     path("partners/", PartnerListView.as_view(), name="partner-list"),
     path("enquiries/", EnquiryCreateView.as_view(), name="enquiry-create"),
     path("reviews/", ReviewCreateView.as_view(), name="review-create"),
+    path("reviews/draft/", ReviewDraftView.as_view(), name="review-draft"),
     path("analytics/collect/", CollectView.as_view(), name="analytics-collect"),
     # Documentation
     path("schema/", SpectacularAPIView.as_view(), name="schema"),

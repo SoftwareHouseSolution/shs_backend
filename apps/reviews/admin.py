@@ -40,7 +40,8 @@ class ReviewAdmin(PlainAdmin):
     date_hierarchy = "created_at"
     readonly_fields = [
         "reference", "review_text", "own_words", "author_name", "shop_name", "governorate", "area", "photo_preview",
-        "duration", "support", "updates", "benefit_list", "language", "source",
+        "duration", "support", "updates", "benefit_list", "business_type", "branches", "previous_system",
+        "language", "source",
         "status_label", "testimonial_link", "created_at", "updated_at",
     ]
     fieldsets = [
@@ -48,7 +49,7 @@ class ReviewAdmin(PlainAdmin):
         # The photo is the one thing an editor may change (a better shot, or none at all);
         # everything else is the client's own submission and stays read-only.
         (_("Client"), {"fields": ["author_name", "shop_name", "governorate", "area", ("photo", "photo_preview")]}),
-        (_("Answers"), {"fields": ["duration", "support", "updates", "benefit_list"]}),
+        (_("Answers"), {"fields": ["duration", "support", "updates", "benefit_list", "business_type", "branches", "previous_system"]}),
         (_("Context"), {"fields": ["language", "source", "created_at", "updated_at"]}),
         (_("Follow-up"), {"fields": ["status_label", "testimonial_link", "internal_notes"]}),
     ]

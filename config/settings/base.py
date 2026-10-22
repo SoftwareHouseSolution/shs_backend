@@ -191,6 +191,9 @@ REST_FRAMEWORK = {
         "anon": env("API_THROTTLE_ANON", default="600/min"),
         "enquiries": env("API_THROTTLE_ENQUIRIES", default="5/hour"),
         "reviews": env("API_THROTTLE_REVIEWS", default="5/hour"),
+        # Each draft is a paid model call: generous for a client trying a few versions,
+        # tight enough that nobody can run up the bill.
+        "review_drafts": env("API_THROTTLE_REVIEW_DRAFTS", default="30/hour"),
         # A page reports on open, every 15s while visible, and on leave.
         "analytics": env("API_THROTTLE_ANALYTICS", default="120/min"),
     },
@@ -238,6 +241,11 @@ ENQUIRY_NOTIFIER = env(
     "ENQUIRY_NOTIFIER", default="apps.enquiries.notifiers.EmailEnquiryNotifier"
 )
 ENQUIRY_NOTIFICATION_EMAIL = env("ENQUIRY_NOTIFICATION_EMAIL", default="")
+# AI-drafted client reviews (apps.reviews.drafting). Off while ANTHROPIC_API_KEY is empty:
+# the review page then drafts from its own templates.
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
+REVIEW_AI_MODEL = env("REVIEW_AI_MODEL", default="claude-opus-5-5")
+REVIEW_AI_TIMEOUT = env.float("REVIEW_AI_TIMEOUT", default=30.0)
 # Who is told about a new client review (apps.reviews.notifiers); same address as enquiries.
 REVIEW_NOTIFIER = env("REVIEW_NOTIFIER", default="apps.reviews.notifiers.EmailReviewNotifier")
 # A second identical enquiry from the same address inside this window is a 409.

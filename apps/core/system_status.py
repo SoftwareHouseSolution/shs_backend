@@ -429,6 +429,13 @@ def _configuration() -> Section:
             "" if settings.MEDIA_PUBLIC_BASE_URL else _("Set MEDIA_PUBLIC_BASE_URL so image links use the public address."),
         ))
 
+    if settings.ANTHROPIC_API_KEY:
+        s.checks.append(Check(_("Review drafts"), OK, _("AI (%(model)s)") % {"model": settings.REVIEW_AI_MODEL},
+                              _("Each client's draft is written from their own answers.")))
+    else:
+        s.checks.append(Check(_("Review drafts"), INFO, _("Templates only"),
+                              _("Set ANTHROPIC_API_KEY so each client's draft is written by AI from their own answers.")))
+
     from apps.analytics.models import VisitSession
 
     oldest = VisitSession.objects.order_by("started_at").values_list("started_at", flat=True).first()

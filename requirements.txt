@@ -11,3 +11,5 @@ psycopg[binary]>=3.3,<3.4
 Pillow>=12,<13
 whitenoise>=6.12,<7
 gunicorn>=26,<27
+# Client reviews: AI-drafted reviews (apps/reviews/drafting.py); optional at runtime.
+anthropic>=2.1,<3

@@ -41,6 +41,23 @@ class Review(TimeStampedModel):
         INVOICES = "invoices", _("Invoices")
         WORKMANSHIP = "workmanship", _("Workmanship and hallmarking")
 
+    # Optional context that makes one client's review read differently from the next.
+    class BusinessType(models.TextChoices):
+        RETAIL = "retail", _("Retail shop")
+        WHOLESALE = "wholesale", _("Wholesale")
+        MANUFACTURING = "manufacturing", _("Manufacturing / workshop")
+
+    class Branches(models.TextChoices):
+        ONE = "1", _("One shop")
+        TWO_TO_THREE = "2-3", _("2–3 branches")
+        FOUR_PLUS = "4+", _("4 or more branches")
+
+    class PreviousSystem(models.TextChoices):
+        PAPER = "paper", _("Paper ledgers")
+        EXCEL = "excel", _("Excel")
+        OTHER = "other", _("Another program")
+        NONE = "none", _("Nothing — first system")
+
     # The reviewer
     author_name = models.CharField(_("name"), max_length=120)
     shop_name = models.CharField(_("shop"), max_length=160)
@@ -52,6 +69,9 @@ class Review(TimeStampedModel):
     support = models.CharField(_("technical support"), max_length=8, choices=Rating.choices, db_index=True)
     updates = models.CharField(_("updates"), max_length=8, choices=Rating.choices, db_index=True)
     benefits = models.JSONField(_("helped with"), default=list, help_text=_("Benefit codes."))
+    business_type = models.CharField(_("business"), max_length=16, choices=BusinessType.choices, blank=True)
+    branches = models.CharField(_("branches"), max_length=4, choices=Branches.choices, blank=True)
+    previous_system = models.CharField(_("before Software House"), max_length=8, choices=PreviousSystem.choices, blank=True)
     comment = models.TextField(_("in their own words"), blank=True)
     text = models.TextField(_("review"))
     # Context
