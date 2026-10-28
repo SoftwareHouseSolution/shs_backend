@@ -1,5 +1,6 @@
 from apps.core.schema import api_schema, envelope
 from apps.core.views import CachedObjectView
+from apps.legal.serializers import LegalLinkSerializer, published_pages
 
 from . import selectors
 from .serializers import (
@@ -37,4 +38,5 @@ class SiteView(CachedObjectView):
             "footer_columns": FooterColumnSerializer(selectors.footer_columns(), many=True).data,
             "social_links": SocialLinkSerializer(selectors.social_links(), many=True).data,
             "badges": BadgeSerializer(selectors.badges(), many=True, context=ctx).data,
+            "legal_pages": LegalLinkSerializer(published_pages(), many=True).data,
         }

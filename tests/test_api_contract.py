@@ -21,6 +21,7 @@ READ_ENDPOINTS = [
     ("/api/v1/events/nebu-expo-2024/", ResponseCode.CONTENT_RETRIEVED, False),
     ("/api/v1/testimonials/", ResponseCode.CONTENT_LIST_RETRIEVED, True),
     ("/api/v1/partners/", ResponseCode.CONTENT_LIST_RETRIEVED, True),
+    ("/api/v1/legal/privacy/", ResponseCode.CONTENT_RETRIEVED, False),
 ]
 
 # Routes that are deliberately not JSON-envelope endpoints, or are covered elsewhere.
@@ -47,7 +48,9 @@ def test_every_api_route_is_in_the_contract_sweep():
     declared = {str(p.pattern) for p in api_patterns.url_patterns}
     swept = {u.removeprefix("/api/v1/") for u, _c, _p in READ_ENDPOINTS}
     normalised = {
-        r.replace("<slug:slug>", "about-company") if r.startswith("pages") else r.replace("<slug:slug>", "nebu-expo-2024")
+        r.replace("<slug:slug>", "about-company") if r.startswith("pages")
+            else r.replace("<slug:slug>", "privacy") if r.startswith("legal")
+            else r.replace("<slug:slug>", "nebu-expo-2024")
         for r in declared
     }
     missing = normalised - swept - NOT_IN_SWEEP

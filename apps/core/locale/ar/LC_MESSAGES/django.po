@@ -2497,3 +2497,33 @@ msgstr "الفروع"
 
 msgid "business"
 msgstr "نوع النشاط"
+
+msgid "Legal pages"
+msgstr "الصفحات القانونية"
+
+msgid "Off: the page and its footer link disappear from the website."
+msgstr "عند الإيقاف: تختفي الصفحة ورابطها في أسفل الموقع."
+
+msgid "Privacy policy"
+msgstr "سياسة الخصوصية"
+
+msgid "Shown under the title. Change it when the policy changes."
+msgstr "يظهر تحت العنوان. غيّره عند تعديل السياسة."
+
+msgid "Simple formatting: a line starting with ## is a heading, - starts a list item, **text** is bold, [text](/en#contact) is a link. Leave an empty line between paragraphs."
+msgstr "تنسيق بسيط: السطر الذي يبدأ بـ ## عنوان، و - يبدأ عنصر قائمة، و **نص** خط عريض، و [نص](/ar#contact) رابط. اترك سطرًا فارغًا بين الفقرات."
+
+msgid "Which legal page this is; it decides the address, e.g. /ar/privacy."
+msgstr "نوع الصفحة القانونية؛ يحدد عنوانها، مثل ‎/ar/privacy."
+
+msgid "last updated"
+msgstr "آخر تحديث"
+
+msgid "legal page"
+msgstr "صفحة قانونية"
+
+msgid "legal pages"
+msgstr "الصفحات القانونية"
+
+msgid "link in the footer"
+msgstr "رابط في أسفل الموقع"

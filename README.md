@@ -297,6 +297,13 @@ support and update ratings and what the system helped clients with. After sendin
 is offered to also post the review on Facebook: set the post in **Site settings → Client
 reviews** (empty hides that step).
 
+**Legal pages** (**Site → Legal pages**). The privacy policy lives here, apart from the CMS
+pages, at `/ar/privacy` and `/en/privacy`. Edit its title and text per language (simple
+formatting: `##` heading, `-` list item, `**bold**`, `[text](/en#contact)`) and its "last
+updated" date. **Published** switches the page on or off (off: the page is a 404 and its
+footer link goes); **Link in the footer** hides just the link. App-store listings point at
+the privacy policy's address, so keep it published while the apps are live.
+
 **Review drafts.** With `ANTHROPIC_API_KEY` set, each draft is written by Claude
 (`REVIEW_AI_MODEL`) from that client's own answers and words, in Egyptian Arabic on the Arabic
 page, from a randomly chosen opening angle, so two clients with the same answers still get

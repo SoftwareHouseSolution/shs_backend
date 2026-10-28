@@ -122,3 +122,4 @@ class SitePayloadSerializer(serializers.Serializer):
     footer_columns = FooterColumnSerializer(many=True)
     social_links = SocialLinkSerializer(many=True)
     badges = BadgeSerializer(many=True)
+    legal_pages = serializers.ListField(child=serializers.DictField(), help_text="Published legal pages: {slug, title, in_footer}. A page not listed is off.")

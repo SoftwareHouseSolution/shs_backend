@@ -12,6 +12,7 @@ from apps.core.views import ApiNotFoundView, HealthView
 from apps.enquiries.views import EnquiryCreateView
 from apps.events.views import EventDetailView, EventListView
 from apps.home.views import HomeView
+from apps.legal.views import LegalDocumentView
 from apps.pages.views import PageDetailView, PageListView
 from apps.reviews.views import ReviewCreateView, ReviewDraftView
 from apps.site_config.views import SiteView
@@ -28,6 +29,7 @@ api_v1 = [
     path("events/<slug:slug>/", EventDetailView.as_view(), name="event-detail"),
     path("testimonials/", TestimonialListView.as_view(), name="testimonial-list"),
     path("partners/", PartnerListView.as_view(), name="partner-list"),
+    path("legal/<slug:slug>/", LegalDocumentView.as_view(), name="legal-detail"),
     path("enquiries/", EnquiryCreateView.as_view(), name="enquiry-create"),
     path("reviews/", ReviewCreateView.as_view(), name="review-create"),
     path("reviews/draft/", ReviewDraftView.as_view(), name="review-draft"),

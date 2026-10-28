@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.events",
     "apps.enquiries",
     "apps.reviews",
+    "apps.legal",
     "apps.analytics",
 ]
 
@@ -375,6 +376,7 @@ UNFOLD = {
                     {"title": _("Footer columns"), "icon": "view_column", "link": reverse_lazy("admin:site_config_footercolumn_changelist")},
                     {"title": _("Social links"), "icon": "share", "link": reverse_lazy("admin:site_config_sociallink_changelist")},
                     {"title": _("Badges"), "icon": "verified", "link": reverse_lazy("admin:site_config_badge_changelist")},
+                    {"title": _("Legal pages"), "icon": "policy", "link": reverse_lazy("admin:legal_legaldocument_changelist")},
                 ],
             },
             {
